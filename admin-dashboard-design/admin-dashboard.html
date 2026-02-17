@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banking System - Admin Control Panel</title>
+        <script>
+    // Update page title with admin's name
+    (function() {
+        const session = localStorage.getItem('admin_session');
+        if (session) {
+            try {
+                const admin = JSON.parse(session);
+                const name = admin.name || admin.email.split('@')[0];
+                const role = admin.role === 'master_admin' ? 'Master Admin' : 'Admin';
+                document.title = `${name} (${role}) - Banking System`;
+            } catch (e) {
+                console.error('Failed to update title:', e);
+            }
+        }
+    })();
+    </script>
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- ADD THIS LINE -->
+    <script src="../js/admin-guard.js"></script>
+
+    <!-- Existing CSS -->
+    <link rel="stylesheet" href="css/dashboard.css">
+
+    <!-- ✅ These two should be present -->
+    <link rel="stylesheet" href="css/rbac-styles.css">
+    <link rel="stylesheet" href="css/profile-styles.css">
+</head>
+
+<body class="light-theme">
+
+    <body class="light-theme">
+        <!-- ADD THIS EMERGENCY FIX -->
+        <script>
+            // Force close all modals on page load
+            document.addEventListener('DOMContentLoaded', function () {
+                setTimeout(() => {
+                    document.querySelectorAll('.modal-overlay').forEach(modal => {
+                        modal.classList.remove('show')
+                        modal.style.display = 'none'
+                    })
+                    document.body.style.overflow = 'auto'
+                    console.log('✅ Emergency modal fix applied')
+                }, 100)
+            })
+        </script>
+        <!-- Main Container -->
+        <div class="dashboard-container">
+            <!-- Sidebar -->
+            <aside class="sidebar" id="sidebar">
+                <!-- Sidebar Header -->
+                <div class="sidebar-header">
+                    <div class="sidebar-logo">
+                        <div class="logo-icon">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M3 11l3-3 3 3" />
+                                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                            </svg>
+                        </div>
+                        <div class="logo-text">
+                            <h1>Bank Admin</h1>
+                            <p>Admin Control</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <nav class="sidebar-nav">
+                    <a href="#dashboard" class="nav-item active" data-page="dashboard">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="3" y="3" width="7" height="7" />
+                            <rect x="14" y="3" width="7" height="7" />
+                            <rect x="14" y="14" width="7" height="7" />
+                            <rect x="3" y="14" width="7" height="7" />
+                        </svg>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="#users" class="nav-item" data-page="users">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                            <circle cx="9" cy="7" r="4" />
+                            <path d="m22 21 3-3" />
+                        </svg>
+                        <span>Users</span>
+                    </a>
+                    <a href="#transactions" class="nav-item" data-page="transactions">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M7 16l-4-4 4-4" />
+                            <path d="M17 8l4 4-4 4" />
+                            <path d="M3 12h18" />
+                        </svg>
+                        <span>Transactions</span>
+                    </a>
+                    <a href="#approvals" class="nav-item" data-page="approvals">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M9 11l3 3L22 4" />
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                        </svg>
+                        <span>Approvals</span>
+                    </a>
+                    <a href="#simulate" class="nav-item" data-page="simulate">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2z" />
+                            <path d="M12 6v6l4 2" />
+                        </svg>
+                        <span>Simulate</span>
+                    </a>
+                    <a href="#notifications" class="nav-item" data-page="notifications">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+                            <path d="m13.73 21a2 2 0 0 1-3.46 0" />
+                        </svg>
+                        <span>Notifications</span>
+                    </a>
+                    <a href="#settings" class="nav-item" data-page="settings">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <circle cx="12" cy="12" r="3" />
+                            <path d="m12 1 2.09 6.26L22 9l-6.26 2.09L14 19l-2.09-6.26L4 11l6.26-2.09L12 1z" />
+                        </svg>
+                        <span>Settings</span>
+                    </a>
+                    <!-- ADD THIS PROFILE LINK -->
+                    <a href="#profile" class="nav-item" data-page="profile">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                        <span>Profile</span>
+                    </a>
+                </nav>
+
+                <!-- Sidebar Toggle -->
+                <div class="sidebar-footer">
+                    <button class="sidebar-toggle" id="sidebarToggle">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <line x1="3" y1="6" x2="21" y2="6" />
+                            <line x1="3" y1="12" x2="21" y2="12" />
+                            <line x1="3" y1="18" x2="21" y2="18" />
+                        </svg>
+                        <span>Collapse</span>
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <!-- Header -->
+                <header class="header">
+                    <div class="header-left">
+                        <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <line x1="3" y1="6" x2="21" y2="6" />
+                                <line x1="3" y1="12" x2="21" y2="12" />
+                                <line x1="3" y1="18" x2="21" y2="18" />
+                            </svg>
+                        </button>
+                        <h2 id="pageTitle">Dashboard</h2>
+                    </div>
+
+                    <div class="header-right">
+                        <!-- Theme Toggle -->
+                        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                            <svg class="sun-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="5" />
+                                <path
+                                    d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+                            </svg>
+                            <svg class="moon-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2">
+                                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                            </svg>
+                        </button>
+
+                        <!-- Notifications -->
+                        <button class="notification-btn" id="notificationBtn" aria-label="View notifications">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+                                <path d="m13.73 21a2 2 0 0 1-3.46 0" />
+                            </svg>
+                            <span class="notification-badge" id="notificationBadge"></span>
+                        </button>
+
+                        <!-- User Menu -->
+                        <div class="user-menu">
+                            <button class="user-avatar" id="userMenuToggle" aria-label="User menu">
+                                <div class="avatar-fallback" id="adminAvatar">AD</div>
+                            </button>
+                            <div class="user-dropdown" id="userDropdown">
+                                <div class="user-info">
+                                    <p class="user-name" id="adminName">Admin</p>
+                                    <p class="user-email" id="adminEmail">admin@bank.local</p>
+                                </div>
+                                <div class="dropdown-divider"></div>
+                                <a href="#settings" class="dropdown-item" id="settingsLink">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <circle cx="12" cy="12" r="3" />
+                                        <path
+                                            d="m12 1 2.09 6.26L22 9l-6.26 2.09L14 19l-2.09-6.26L4 11l6.26-2.09L12 1z" />
+                                    </svg>
+                                    Settings
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- ADD THIS SCRIPT RIGHT AFTER THE USER MENU -->
+                        <script>
+                                (function () {
+                                    // Update admin header immediately
+                                    const session = localStorage.getItem('admin_session');
+                                    if (session) {
+                                        try {
+                                            const admin = JSON.parse(session);
+                                            const name = admin.name || admin.email.split('@')[0] || 'Admin';
+                                            const email = admin.email || 'admin@bank.local';
+                                            const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+
+                                            // Update elements
+                                            document.getElementById('adminAvatar').textContent = initials;
+                                            document.getElementById('adminName').textContent = name;
+                                            document.getElementById('adminEmail').textContent = email;
+
+                                            // Hide settings if not master admin
+                                            if (admin.role !== 'master_admin') {
+                                                const settingsLink = document.getElementById('settingsLink');
+                                                if (settingsLink) settingsLink.style.display = 'none';
+                                            }
+
+                                            console.log('✅ Admin header updated:', name, email, initials);
+                                        } catch (e) {
+                                            console.error('❌ Failed to update admin header:', e);
+                                        }
+                                    }
+                                })();
+                        </script>
+                    </div>
+                </header>
+
+                <!-- Page Content -->
+                <div class="page-content" id="pageContent">
+                    <!-- Dashboard Page -->
+                    <div class="page" id="dashboard-page">
+                        <div class="page-header">
+                            <h1>Banking Admin Console</h1>
+                            <p>Administrator Dashboard</p>
+                        </div>
+
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-content">
+                                    <div class="stat-info">
+                                        <p class="stat-label">Total Users</p>
+                                        <p class="stat-value" id="dashboardTotalUsers">0</p>
+                                    </div>
+                                    <div class="stat-icon">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2">
+                                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                                            <circle cx="9" cy="7" r="4" />
+                                            <path d="m22 21-2-2" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="stat-card">
+                                <div class="stat-content">
+                                    <div class="stat-info">
+                                        <p class="stat-label">Total Balance</p>
+                                        <p class="stat-value" id="dashboardTotalBalance">$0</p>
+                                    </div>
+                                    <div class="stat-icon">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2">
+                                            <rect x="3" y="11" width="18" height="10" rx="2" ry="2" />
+                                            <circle cx="12" cy="5" r="2" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="stat-card">
+                                <div class="stat-content">
+                                    <div class="stat-info">
+                                        <p class="stat-label">Pending Transactions</p>
+                                        <p class="stat-value" id="dashboardPendingTx">0</p>
+                                    </div>
+                                    <div class="stat-icon">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2">
+                                            <path d="M7 16l-4-4 4-4" />
+                                            <path d="M17 8l4 4-4 4" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="stat-card">
+                                <div class="stat-content">
+                                    <div class="stat-info">
+                                        <p class="stat-label">Total Transactions</p>
+                                        <p class="stat-value" id="dashboardTotalTx">0</p>
+                                    </div>
+                                    <div class="stat-icon">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2">
+                                            <path d="M3 3v18h18" />
+                                            <path d="m19 9-5 5-4-4-3 3" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Activity -->
+                        <div class="card">
+                            <div class="card-content">
+                                <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem;">Recent
+                                    Transactions
+                                </h3>
+                                <div id="recentActivityList"
+                                    style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                    <p style="color: var(--muted-foreground);">No transactions yet</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Users Page -->
+                    <div class="page hidden" id="users-page">
+                        <div class="page-header">
+                            <div class="page-title">
+                                <h1>User Management</h1>
+                                <p>Manage user accounts and balances</p>
+                            </div>
+                            <div class="page-actions">
+                                <button class="btn btn-primary" id="addUserBtn">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <line x1="12" y1="5" x2="12" y2="19" />
+                                        <line x1="5" y1="12" x2="19" y2="12" />
+                                    </svg>
+                                    Add User
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- User Stats -->
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-content">
+                                    <div class="stat-info">
+                                        <p class="stat-label">Total Users</p>
+                                        <p class="stat-value" id="totalUsers">0</p>
+                                    </div>
+                                    <div class="stat-icon">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2">
+                                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                                            <circle cx="9" cy="7" r="4" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-content">
+                                    <div class="stat-info">
+                                        <p class="stat-label">Active Users</p>
+                                        <p class="stat-value" id="activeUsers">0</p>
+                                    </div>
+                                    <div class="stat-icon">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="12" r="1" />
+                                            <circle cx="19" cy="12" r="1" />
+                                            <circle cx="5" cy="12" r="1" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-content">
+                                    <div class="stat-info">
+                                        <p class="stat-label">Combined Balance</p>
+                                        <p class="stat-value" id="totalBalance">$0</p>
+                                    </div>
+                                    <div class="stat-icon">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2">
+                                            <path d="M3 3v18h18" />
+                                            <path d="m19 9-5 5-4-4-3 3" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Search and Filters -->
+                        <div class="filters">
+                            <div class="search-box">
+                                <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2">
+                                    <circle cx="11" cy="11" r="8" />
+                                    <path d="m21 21-4.35-4.35" />
+                                </svg>
+                                <input type="text" id="userSearch" placeholder="Search by name, email, or ID..."
+                                    aria-label="Search users">
+                            </div>
+                            <select id="statusFilter" class="filter-select" aria-label="Filter by status">
+                                <option value="all">All Status</option>
+                                <option value="Active">Active</option>
+                                <option value="Inactive">Inactive</option>
+                            </select>
+                        </div>
+
+                        <!-- Users Table -->
+                        <div class="table-container card">
+                            <table class="data-table" id="usersTable">
+                                <thead>
+                                    <tr>
+                                        <th>Initials</th>
+                                        <th>Email</th>
+                                        <th>Role</th> <!-- NEW -->
+                                        <th>Status</th> <!-- NEW -->
+                                        <th>Online</th> <!-- NEW -->
+                                        <th>Account #</th>
+                                        <th>Balance</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersTableBody">
+                                    <tr>
+                                        <td colspan="5" style="text-align: center; padding: 2rem;">No users found</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        <div class="pagination">
+                            <div class="pagination-info">
+                                <span id="paginationInfo">Showing 0 of 0 users</span>
+                            </div>
+                            <div class="pagination-controls">
+                                <button class="btn btn-outline btn-sm" id="prevPage" aria-label="Previous page">←
+                                    Previous</button>
+                                <span class="pagination-text" id="pageInfo">Page 1</span>
+                                <button class="btn btn-outline btn-sm" id="nextPage" aria-label="Next page">Next
+                                    →</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- End of Users Page -->
+
+                    <!-- Profile Page (CORRECTED) -->
+                    <div class="page hidden" id="profile-page">
+                        <div class="page-header">
+                            <h1>My Profile</h1>
+                            <p>View and manage your account information</p>
+                        </div>
+
+                        <div id="profile-content-container">
+                            <!-- Profile will be loaded here by JavaScript -->
+                            <div style="text-align: center; padding: 3rem; color: var(--muted-foreground);">
+                                <p>Loading profile...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Your next page continues here (Transactions, etc.) -->
+
+                    <!-- Transactions Page -->
+                    <div class="page hidden" id="transactions-page">
+                        <div class="page-header">
+                            <div class="page-title">
+                                <h1>Transaction History</h1>
+                                <p>View all transactions and their status</p>
+                            </div>
+                        </div>
+
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-content">
+                                    <div class="stat-info">
+                                        <p class="stat-label">Total Transactions</p>
+                                        <p class="stat-value" id="txTotalCount">0</p>
+                                    </div>
+                                    <div class="stat-icon">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2">
+                                            <path d="M7 16l-4-4 4-4" />
+                                            <path d="M17 8l4 4-4 4" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-content">
+                                    <div class="stat-info">
+                                        <p class="stat-label">Pending</p>
+                                        <p class="stat-value" id="txPendingCount">0</p>
+                                    </div>
+                                    <div class="stat-icon">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="12" r="10" />
+                                            <path d="M12 6v6l4 2" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-content">
+                                    <div class="stat-info">
+                                        <p class="stat-label">Approved</p>
+                                        <p class="stat-value" id="txApprovedCount">0</p>
+                                    </div>
+                                    <div class="stat-icon">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2">
+                                            <path d="M9 11l3 3L22 4" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-content">
+                                    <div class="stat-info">
+                                        <p class="stat-label">Rejected</p>
+                                        <p class="stat-value" id="txRejectedCount">0</p>
+                                    </div>
+                                    <div class="stat-icon">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2">
+                                            <path d="M18 6L6 18M6 6l12 12" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Filters -->
+                        <div class="filters">
+                            <div class="search-box">
+                                <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2">
+                                    <circle cx="11" cy="11" r="8" />
+                                    <path d="m21 21-4.35-4.35" />
+                                </svg>
+                                <input type="text" id="transactionSearch" placeholder="Search by ID, user, or amount..."
+                                    aria-label="Search transactions">
+                            </div>
+                            <select id="transactionStatusFilter" class="filter-select" aria-label="Filter by status">
+                                <option value="all">All Status</option>
+                                <option value="Pending">Pending</option>
+                                <option value="Approved">Approved</option>
+                                <option value="Rejected">Rejected</option>
+                            </select>
+                            <select id="transactionTypeFilter" class="filter-select" aria-label="Filter by type">
+                                <option value="all">All Types</option>
+                                <option value="Credit">Credit</option>
+                                <option value="Debit">Debit</option>
+                            </select>
+                        </div>
+
+                        <!-- Transactions Table -->
+                        <div class="table-container card">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Transaction ID</th>
+                                        <th>User</th>
+                                        <th>Type</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Date</th>
+                                        <th>OTP</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="transactionsTableBody">
+                                    <tr>
+                                        <td colspan="8" style="text-align: center; padding: 2rem;">No transactions found
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        <div class="pagination">
+                            <div class="pagination-info">
+                                <span id="txPaginationInfo">Showing 0 of 0 transactions</span>
+                            </div>
+                            <div class="pagination-controls">
+                                <button class="btn btn-outline btn-sm" id="txPrevPage" aria-label="Previous page">←
+                                    Previous</button>
+                                <span class="pagination-text" id="txPageInfo">Page 1</span>
+                                <button class="btn btn-outline btn-sm" id="txNextPage" aria-label="Next page">Next
+                                    →</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Approvals Page -->
+                    <div class="page hidden" id="approvals-page">
+                        <div class="page-header">
+                            <div class="page-title">
+                                <h1>Transaction Approvals</h1>
+                                <p>Review and approve/reject pending transactions</p>
+                            </div>
+                        </div>
+
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-content">
+                                    <div class="stat-info">
+                                        <p class="stat-label">Pending Review</p>
+                                        <p class="stat-value" id="approvalPendingCount">0</p>
+                                    </div>
+                                    <div class="stat-icon">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="12" r="10" />
+                                            <path d="M12 6v6l4 2" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-content">
+                                    <div class="stat-info">
+                                        <p class="stat-label">Approved Today</p>
+                                        <p class="stat-value" id="approvalTodayCount">0</p>
+                                    </div>
+                                    <div class="stat-icon">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2">
+                                            <path d="M9 11l3 3L22 4" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pending Approvals -->
+                        <div class="table-container card">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Transaction ID</th>
+                                        <th>User</th>
+                                        <th>Type</th>
+                                        <th>Amount</th>
+                                        <th>OTP</th>
+                                        <th>Date Requested</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="approvalsTableBody">
+                                    <tr>
+                                        <td colspan="7" style="text-align: center; padding: 2rem;">No pending approvals
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Simulate Page -->
+                    <div class="page hidden" id="simulate-page">
+                        <div class="page-header">
+                            <div class="page-title">
+                                <h1>Transaction Simulator</h1>
+                                <p>Simulate incoming and outgoing transactions for testing</p>
+                            </div>
+                        </div>
+
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-content">
+                                    <div class="stat-info">
+                                        <p class="stat-label">Simulated Transactions</p>
+                                        <p class="stat-value" id="simulatedCount">0</p>
+                                    </div>
+                                    <div class="stat-icon">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2">
+                                            <path
+                                                d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2z" />
+                                            <path d="M12 6v6l4 2" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Create Transaction Form -->
+                        <div class="card">
+                            <div class="card-content">
+                                <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem;">Create
+                                    Transaction
+                                </h3>
+                                <form id="simulateTransactionForm" style="display: grid; gap: 1rem;">
+                                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                                        <div class="form-group">
+                                            <label for="simStudentSelect">User</label>
+                                            <select id="simStudentSelect" required aria-label="Select user">
+                                                <option value="">-- Select a User --</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="simTransactionType">Transaction Type</label>
+                                            <select id="simTransactionType" required
+                                                aria-label="Select transaction type">
+                                                <option value="Credit">Credit (Deposit)</option>
+                                                <option value="Debit">Debit (Withdrawal)</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="simAmount">Amount ($)</label>
+                                            <input type="number" id="simAmount" placeholder="0.00" step="0.01" min="0"
+                                                required aria-label="Enter amount">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="simOTP">OTP</label>
+                                            <input type="text" id="simOTP" placeholder="Auto-generated" readonly
+                                                aria-label="OTP">
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-primary" id="generateSimOTPBtn">Generate
+                                        OTP</button>
+                                    <button type="submit" class="btn btn-primary"
+                                        style="background-color: #10b981;">Submit
+                                        Transaction</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notifications Page -->
+                    <div class="page hidden" id="notifications-page">
+                        <div class="page-header">
+                            <div class="page-title">
+                                <h1>Notifications</h1>
+                                <p>System notifications and alerts</p>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-content">
+                                <div id="notificationsList" style="display: flex; flex-direction: column; gap: 1rem;">
+                                    <p style="color: var(--muted-foreground); text-align: center; padding: 2rem;">No
+                                        notifications yet</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Settings Page -->
+                    <div class="page hidden" id="settings-page">
+                        <div class="page-header">
+                            <h1>Settings</h1>
+                            <p>System and admin settings</p>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-content">
+                                <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1.5rem;">System
+                                    Settings
+                                </h3>
+                                <div style="display: grid; gap: 1.5rem;">
+                                    <div
+                                        style="display: flex; align-items: center; justify-content: space-between; padding: 1rem; background-color: var(--muted); border-radius: 6px;">
+                                        <div>
+                                            <p style="font-weight: 500;">Clear All Data</p>
+                                            <p style="font-size: 0.875rem; color: var(--muted-foreground);">Reset all
+                                                users, transactions, and notifications</p>
+                                        </div>
+                                        <button class="btn btn-destructive" id="clearDataBtn">Clear</button>
+                                    </div>
+                                    <div
+                                        style="display: flex; align-items: center; justify-content: space-between; padding: 1rem; background-color: var(--muted); border-radius: 6px;">
+                                        <div>
+                                            <p style="font-weight: 500;">Generate Sample Data</p>
+                                            <p style="font-size: 0.875rem; color: var(--muted-foreground);">Populate
+                                                with
+                                                demo users and transactions</p>
+                                        </div>
+                                        <button class="btn btn-outline" id="generateSampleDataBtn">Generate</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Add User Modal -->
+        <div class="modal-overlay" id="createUserModal">
+            <div class="modal">
+                <div class="modal-header">
+                    <h3>Add New User</h3>
+                    <button type="button" class="modal-close" onclick="closeModal('createUserModal')">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18" />
+                            <line x1="6" y1="6" x2="18" y2="18" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="modal-content">
+                    <form id="createUserForm">
+                        <div class="form-group">
+                            <label for="userName">Full Name</label>
+                            <input type="text" id="userName" name="name" required aria-label="Full name">
+                        </div>
+                        <div class="form-group">
+                            <label for="userEmail">Email</label>
+                            <input type="email" id="userEmail" name="email" required aria-label="Email address">
+                        </div>
+                        <div class="form-group">
+                            <label for="userPassword">Password</label>
+                            <input type="password" id="userPassword" name="password" placeholder="Minimum 6 characters"
+                                minlength="6" required aria-label="Password">
+                        </div>
+                        <div class="form-group">
+                            <label for="userAccountNumber">Account Number</label>
+                            <input type="text" id="userAccountNumber" name="accountNumber" placeholder="e.g., ACC001"
+                                required aria-label="Account number">
+                        </div>
+                        <div class="form-group">
+                            <label for="userInitialBalance">Initial Balance ($)</label>
+                            <input type="number" id="userInitialBalance" name="balance" placeholder="0.00" step="0.01"
+                                min="0" value="1000" required aria-label="Initial balance">
+                        </div>
+
+                        <!-- ADD THIS ROLE DROPDOWN -->
+                        <div class="form-group" id="roleSelectGroup" style="display: none;">
+                            <label for="userRole">Account Role</label>
+                            <select id="userRole" name="role" class="form-select">
+                                <option value="user">User</option>
+                                <option value="admin">Administrator</option>
+                            </select>
+                            <small
+                                style="display: block; margin-top: 0.5rem; color: var(--muted-foreground); font-size: 0.875rem;">
+                                Only Master Admins can create administrator accounts
+                            </small>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline"
+                        onclick="closeModal('createUserModal')">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="createUser()">Add User</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- View/Edit User Modal -->
+        <div class="modal-overlay" id="editUserModal">
+            <div class="modal">
+                <div class="modal-header">
+                    <h3>Manage User</h3>
+                    <button type="button" class="modal-close" onclick="closeModal('editUserModal')">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18" />
+                            <line x1="6" y1="6" x2="18" y2="18" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="modal-content">
+                    <div id="userManagementContent">
+                        <form id="editUserForm" style="margin-bottom: 1.5rem;">
+                            <div class="form-group">
+                                <label>Full Name</label>
+                                <input type="text" id="editUserName" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" id="editUserEmail" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Account Number</label>
+                                <input type="text" id="editUserAccountNumber" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Current Balance ($)</label>
+                                <input type="number" id="editUserBalance" step="0.01" min="0" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Status</label>
+                                <select id="editUserStatus" required>
+                                    <option value="Active">Active</option>
+                                    <option value="Inactive">Inactive</option>
+                                </select>
+                            </div>
+                        </form>
+
+                        <div style="border-top: 1px solid var(--border); padding-top: 1rem;">
+                            <h4 style="font-weight: 600; margin-bottom: 1rem;">Quick Balance Adjustment</h4>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                                <div>
+                                    <label for="adjustAmount" style="font-size: 0.875rem;">Amount ($)</label>
+                                    <input type="number" id="adjustAmount" placeholder="0.00" step="0.01">
+                                </div>
+                                <div style="display: flex; gap: 0.5rem; align-items: flex-end;">
+                                    <button type="button" class="btn btn-primary" onclick="quickCredit()"
+                                        style="flex: 1;">Credit</button>
+                                    <button type="button" class="btn btn-destructive" onclick="quickDebit()"
+                                        style="flex: 1;">Debit</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('editUserModal')">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="updateStudent()">Save Changes</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Send Message Modal -->
+        <div class="modal-overlay" id="sendMessageModal">
+            <div class="modal">
+                <div class="modal-header">
+                    <h3>Send Message</h3>
+                    <button type="button" class="modal-close" onclick="closeModal('sendMessageModal')">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18" />
+                            <line x1="6" y1="6" x2="18" y2="18" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="modal-content">
+                    <div style="margin-bottom: 1.5rem;">
+                        <p style="color: var(--muted-foreground); margin-bottom: 1rem;">To: <span
+                                id="messageRecipientName" style="font-weight: 600;"></span></p>
+                        <form id="sendMessageForm">
+                            <div class="form-group">
+                                <label>Message</label>
+                                <textarea id="messageText" placeholder="Type your message here..." rows="4" required
+                                    style="resize: vertical;"></textarea>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline"
+                        onclick="closeModal('sendMessageModal')">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="submitMessage()">Send Message</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Approve/Reject Modal -->
+        <div class="modal-overlay" id="approveTransactionModal">
+            <div class="modal modal-sm">
+                <div class="modal-header">
+                    <h3>Review Transaction</h3>
+                    <button type="button" class="modal-close" onclick="closeModal('approveTransactionModal')">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18" />
+                            <line x1="6" y1="6" x2="18" y2="18" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="modal-content">
+                    <div id="approveTransactionContent">
+                        <p style="color: var(--muted-foreground); text-align: center;">Loading...</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline"
+                        onclick="closeModal('approveTransactionModal')">Cancel</button>
+                    <button type="button" class="btn btn-destructive" onclick="rejectTransaction()">Reject</button>
+                    <button type="button" class="btn btn-primary" style="background-color: #10b981;"
+                        onclick="approveTransaction()">Approve</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Supabase SDK -->
+        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+        <script src="../config.js"></script>
+
+        <!-- ADD THESE NEW RBAC SCRIPTS -->
+        <script src="../js/api-client.js"></script>
+        <script src="../js/profile-manager.js"></script>
+
+        <!-- Your existing dashboard script -->
+        <script src="js/dashboard.js"></script>
+
+<!-- FORCE INITIALIZE EVENT LISTENERS -->
+    <script>
+    console.log('🔧 Forcing event listener initialization...')
+    
+    // Wait for dashboard.js to load
+    let attempts = 0
+    const maxAttempts = 10
+    
+    const initInterval = setInterval(function() {
+        attempts++
+        
+        if (typeof initializeEventListeners === 'function') {
+            console.log('✅ Found initializeEventListeners, calling it now...')
+            initializeEventListeners()
+            clearInterval(initInterval)
+            
+            // Double check button works
+            setTimeout(function() {
+                const btn = document.getElementById('addUserBtn')
+                if (btn) {
+                    console.log('✅ Add User button should work now')
+                    // Test it
+                    console.log('Button has click listener:', btn.onclick !== null || 
+                                getEventListeners(btn).click?.length > 0)
+                }
+            }, 500)
+            
+        } else if (attempts >= maxAttempts) {
+            console.error('❌ initializeEventListeners never loaded')
+            clearInterval(initInterval)
+            
+            // Manual fallback
+            console.log('🔧 Applying manual fix...')
+            const btn = document.getElementById('addUserBtn')
+            if (btn && typeof openModal === 'function') {
+                btn.onclick = function() {
+                    openModal('createUserModal')
+                }
+                console.log('✅ Manual fix applied')
+            }
+        }
+    }, 500) // Check every 500ms
+    </script>
+
+    </body>
+
+</html>
