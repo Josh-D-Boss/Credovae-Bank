@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BankDash - Professional Banking Dashboard</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div id="app" class="min-h-screen bg-background transition-colors">
+
+        <!-- ================================================================ -->
+        <!-- LOGIN PAGE -->
+        <!-- ================================================================ -->
+        <div id="login-page" class="login-container">
+            <div class="login-card">
+<div class="login-header">
+    <img src="../assets/logo.svg" 
+         alt="Credovae Bank Logo" 
+         style="width: 80px; 
+                height: 80px; 
+                display: block; 
+                margin: 0 auto 1.25rem auto; 
+                object-fit: contain;">
+    <h1 class="text-3xl font-bold">Credovae Bank</h1>
+    <p class="text-muted-foreground mt-2">Secure Client Portal</p>
+</div>
+
+                <form id="login-form" class="space-y-4">
+                    <div class="space-y-2">
+                        <label class="label">Email Address</label>
+                        <input type="email" id="login-email" class="input" placeholder="user@example.com" required />
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="label">Password</label>
+                        <input type="password" id="login-password" class="input" placeholder="••••••••" required />
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-full">Sign In</button>
+                </form>
+
+            </div>
+        </div>
+
+        <!-- ================================================================ -->
+        <!-- MAIN DASHBOARD (Hidden until logged in) -->
+        <!-- ================================================================ -->
+        <div id="dashboard-page" class="hidden min-h-screen flex responsive-flex">
+
+            <!-- SIDEBAR -->
+            <div class="sidebar w-64 min-h-screen bg-sidebar border-r border-sidebar-border transition-all">
+                <div class="p-4 border-b border-sidebar-border">
+    <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: nowrap;">
+        <img src="../assets/logo.svg" 
+             alt="Credovae Bank Logo" 
+             style="width: 32px; 
+                    height: 32px; 
+                    object-fit: contain; 
+                    flex-shrink: 0;">
+        <div style="min-width: 0;">
+            <h2 style="font-size: 1rem; 
+                       font-weight: 700; 
+                       white-space: nowrap; 
+                       color: var(--sidebar-foreground);">Credovae Bank</h2>
+            <p style="font-size: 0.7rem; 
+                      color: var(--muted-foreground); 
+                      white-space: nowrap;">Private & Corporate Banking</p>
+        </div>
+    </div>
+</div>
+
+                <nav class="px-4 space-y-2 py-6">
+                    <button class="nav-item active" data-section="dashboard">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="7" height="9" />
+                            <rect x="14" y="3" width="7" height="5" />
+                            <rect x="14" y="12" width="7" height="9" />
+                            <rect x="3" y="16" width="7" height="5" />
+                        </svg>
+                        <span>Dashboard</span>
+                    </button>
+                    <button class="nav-item" data-section="wallet">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
+                            <path d="M3 5v14a2 2 0 0 0 2 2h16v-5" />
+                            <circle cx="12" cy="12" r="2" />
+                        </svg>
+                        <span>Wallets</span>
+                    </button>
+                    <button class="nav-item" data-section="transactions">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M8 12h8M12 8v8" />
+                        </svg>
+                        <span>Transactions</span>
+                    </button>
+<button class="nav-item" data-section="messages">
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+    </svg>
+    <span>Alerts</span>
+    <span class="notification-badge" id="userNotificationBadge" style="display: none;"></span>
+</button>
+                    <button class="nav-item" data-section="profile">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                            <circle cx="12" cy="7" r="4" />
+                        </svg>
+                        <span>Profile</span>
+                    </button>
+                </nav>
+
+                <div class="px-4 py-4 border-t border-sidebar-border space-y-3">
+                    <button id="logout-btn" class="btn btn-outline w-full">Logout</button>
+                </div>
+            </div>
+
+            <!-- MAIN CONTENT -->
+            <div class="flex-1 overflow-y-auto">
+                <!-- HEADER WITH THEME TOGGLE AT FAR RIGHT -->
+                <div class="page-header">
+                    <h1 id="page-title">Dashboard</h1>
+                    <div class="header-actions">
+                        <span class="text-sm text-muted-foreground" id="user-welcome">Welcome, User</span>
+                        <button id="theme-toggle-btn" class="theme-toggle-header">
+                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="5" />
+                                <line x1="12" y1="1" x2="12" y2="3" />
+                                <line x1="12" y1="21" x2="12" y2="23" />
+                                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                                <line x1="1" y1="12" x2="3" y2="12" />
+                                <line x1="21" y1="12" x2="23" y2="12" />
+                                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                            </svg>
+                            <span>Theme</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CONTENT AREA -->
+                <div class="p-8">
+                    <div id="content-container">
+                        <!-- Content will be dynamically rendered here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================================================================ -->
+        <!-- TRANSFER MODALS -->
+        <!-- ================================================================ -->
+
+        <!-- Step 1: Choose Transfer Method -->
+        <div id="transfer-method-modal" class="modal hidden">
+            <div class="modal-overlay"></div>
+            <div class="modal-content max-w-2xl">
+                <div class="modal-header">
+                    <h2 class="modal-title">Select Transfer Method</h2>
+                    <p class="modal-description">Choose how you want to send money</p>
+                </div>
+                <div class="modal-body">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="transfer-method-card" data-method="wire">
+                            <div class="icon-large">💳</div>
+                            <h3 class="font-semibold">Wire Transfer (SWIFT)</h3>
+                            <p class="text-sm text-muted-foreground">Secure international transfers</p>
+                        </div>
+                        <div class="transfer-method-card" data-method="imps">
+                            <div class="icon-large">⚡</div>
+                            <h3 class="font-semibold">IMPS</h3>
+                            <p class="text-sm text-muted-foreground">Immediate Payment Service (24/7)</p>
+                        </div>
+                        <div class="transfer-method-card" data-method="neft">
+                            <div class="icon-large">🏦</div>
+                            <h3 class="font-semibold">NEFT</h3>
+                            <p class="text-sm text-muted-foreground">National Electronic Funds Transfer</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline" id="transfer-cancel-1">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Recipient Details -->
+        <div id="recipient-details-modal" class="modal hidden">
+            <div class="modal-overlay"></div>
+            <div class="modal-content max-w-2xl">
+                <div class="modal-header">
+                    <h2 class="modal-title">Transfer Details</h2>
+                    <p class="modal-description">Enter recipient information and amount</p>
+                </div>
+                <form id="recipient-form" class="modal-body space-y-6">
+                    <div class="space-y-4">
+                        <h3 class="font-semibold">Your Account</h3>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <p class="text-muted-foreground">Account Number</p>
+                                <p class="font-mono font-semibold" id="sender-account-number">••••••••</p>
+                            </div>
+                            <div>
+                                <p class="text-muted-foreground">Available Balance</p>
+                                <p class="font-semibold text-primary" id="sender-balance">$0.00</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="border-border" />
+
+                    <div class="space-y-4">
+                        <h3 class="font-semibold">Recipient Information</h3>
+                        <div class="space-y-3">
+                            <div class="space-y-2">
+                                <label class="label">Recipient Name *</label>
+                                <input type="text" id="recipient-name" class="input" placeholder="John Doe" required />
+                            </div>
+                            <div class="space-y-2">
+                                <label class="label">Bank Name *</label>
+                                <input type="text" id="recipient-bank" class="input" placeholder="ABC Bank" required />
+                            </div>
+                            <div class="space-y-2">
+                                <label class="label">Account Number *</label>
+                                <input type="text" id="recipient-account" class="input" placeholder="1234567890"
+                                    required />
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="border-border" />
+
+                    <div class="space-y-4">
+                        <h3 class="font-semibold">Transfer Amount</h3>
+                        <div class="space-y-3">
+                            <div class="space-y-2">
+                                <label class="label">Amount (USD) *</label>
+                                <input type="number" id="transfer-amount" class="input" placeholder="100.00" min="0.01"
+                                    step="0.01" required />
+                            </div>
+                            <div class="space-y-2">
+                                <label class="label">Description (Optional)</label>
+                                <textarea id="transfer-description" class="input" placeholder="Payment for..."
+                                    rows="2"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                <div class="modal-footer">
+                    <button class="btn btn-outline" id="transfer-cancel-2">Cancel</button>
+                    <button class="btn btn-primary" id="transfer-next-otp">Send OTP</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: OTP Verification (CRITICAL - BLOCKS TRANSACTION) -->
+        <div id="otp-modal" class="modal hidden">
+            <div class="modal-overlay"></div>
+            <div class="modal-content max-w-md">
+                <div class="modal-header text-center">
+                    <h2 class="modal-title">Verify OTP</h2>
+                    <p class="modal-description">Enter the 6-digit code sent to your email</p>
+                </div>
+                <div class="modal-body space-y-6">
+                    <div class="info-box info-info">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M12 16v-4M12 8h.01" />
+                        </svg>
+                        <p class="text-sm">OTP sent to <strong id="otp-email-display">your email</strong></p>
+                    </div>
+
+                    <div class="space-y-3">
+                        <label class="label">6-Digit OTP</label>
+                        <input type="text" id="otp-input" class="input text-center text-2xl tracking-widest"
+                            placeholder="000000" maxlength="6" required />
+                    </div>
+
+                    <div class="text-center">
+                        <p class="text-sm text-muted-foreground">OTP expires in <span id="otp-timer"
+                                class="font-semibold text-destructive">5:00</span></p>
+                    </div>
+
+                    <div class="info-box info-warning">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+                        </svg>
+                        <p class="text-xs">⚠️ Check your email for the OTP code. Transaction cannot proceed without
+                            valid OTP.</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline" id="otp-cancel">Cancel</button>
+                    <button class="btn btn-primary" id="otp-submit">Confirm Transfer</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transaction Pending Screen -->
+        <div id="pending-screen" class="modal hidden">
+            <div class="modal-overlay"></div>
+            <div class="modal-content max-w-md text-center">
+                <div class="modal-body space-y-6 py-12">
+                    <div class="space-y-2">
+                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10">
+                            <svg class="w-8 h-8 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                        </div>
+                        <h2 class="text-2xl font-bold">Transfer Initiated</h2>
+                        <p class="text-muted-foreground">Your transaction is being processed</p>
+                    </div>
+
+                    <div class="bg-muted p-4 rounded-lg space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-muted-foreground">Recipient:</span>
+                            <span class="font-semibold" id="pending-recipient">—</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-muted-foreground">Amount:</span>
+                            <span class="font-semibold text-destructive" id="pending-amount">—</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-muted-foreground">Status:</span>
+                            <span class="font-semibold text-orange-500">PENDING</span>
+                        </div>
+                    </div>
+
+                    <p class="text-sm text-muted-foreground">
+                        Your transaction is being processed securely. You will receive a confirmation notification once approved.
+                    </p>
+
+                    <button class="btn btn-primary w-full" id="pending-close">Return to Dashboard</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <!-- Supabase SDK - MUST BE FIRST -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Configuration - MUST BE SECOND -->
+    <script src="../config.js"></script>
+
+    <!-- Dashboard script - MUST BE LAST -->
+    <script src="js/dashboard.js"></script>
+
+        <!-- UPDATE PAGE TITLE - MUST BE LAST -->
+    <script>
+    // Update page title after everything loads
+    window.addEventListener('load', async function() {
+        console.log('🔧 Updating page title...');
+        
+        // Wait for dashboard to initialize
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        try {
+            // Check if we have a session
+            const { data: { session }, error } = await window.supabaseClient.auth.getSession();
+            
+            if (!session) {
+                console.log('ℹ️ No session - keeping default title');
+                return;
+            }
+            
+            // Get user profile from database
+            const { data: profile } = await window.supabaseClient
+                .from('users')
+                .select('name')
+                .eq('id', session.user.id)
+                .single();
+            
+            // Get name from profile or session
+            const name = profile?.name || 
+                        session.user.user_metadata?.full_name || 
+                        session.user.email.split('@')[0];
+            
+            // Update title
+            document.title = `${name}'s Dashboard - Credovae Bank`;
+            console.log('✅ Page title updated to:', document.title);
+            
+        } catch (e) {
+            console.error('❌ Failed to update title:', e);
+        }
+    });
+    </script>
+</body>
+
+</html>
