@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "name": "global-offshore-bank",
+  "name": "Credovae Bank",
   "builds": [
     {
       "src": "api/**/*.js",
@@ -10,11 +10,11 @@
   "routes": [
     {
       "src": "/user-dashboard",
-      "dest": "/user-dashboard/user-dashboard.html"
+      "dest": "/Credovae Bank/user-dashboard.html"
     },
     {
       "src": "/admin-dashboard",
-      "dest": "/admin-dashboard/admin-dashboard.html"
+      "dest": "/admin-dashboard-design/admin-dashboard.html"
     }
   ],
   "headers": [
