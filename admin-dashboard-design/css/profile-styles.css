@@ -1,0 +1,431 @@
+/* ============================================================================
+   PROFILE PAGE STYLING - Modern Card Design
+   Based on reference image with blue gradient header
+   ============================================================================ */
+
+/* Profile Container */
+.profile-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
+
+/* Dark theme support */
+.dark-theme .profile-container {
+    background: #1e293b;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Profile Header with Blue Gradient */
+.profile-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 3rem 2rem 2rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    position: relative;
+}
+
+/* Profile Avatar */
+.profile-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    font-weight: 700;
+    color: #667eea;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    flex-shrink: 0;
+}
+
+/* Profile Info */
+.profile-info {
+    flex: 1;
+    color: white;
+}
+
+.profile-info h2 {
+    margin: 0 0 0.5rem 0;
+    font-size: 2rem;
+    font-weight: 700;
+    color: white;
+}
+
+.profile-email {
+    margin: 0 0 1rem 0;
+    font-size: 1rem;
+    opacity: 0.95;
+    color: white;
+}
+
+/* Role Badge in Header */
+.profile-info .role-badge {
+    display: inline-block;
+    padding: 0.5rem 1.25rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: capitalize;
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(10px);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Profile Details Section */
+.profile-details {
+    padding: 2rem;
+}
+
+.profile-details h3 {
+    margin: 0 0 1.5rem 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.dark-theme .profile-details h3 {
+    color: #f1f5f9;
+}
+
+/* Detail Rows */
+.detail-row {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 1.5rem;
+    padding: 1.25rem 0;
+    border-bottom: 1px solid #e2e8f0;
+    align-items: center;
+}
+
+.dark-theme .detail-row {
+    border-bottom-color: #334155;
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-row label {
+    font-weight: 600;
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+.dark-theme .detail-row label {
+    color: #94a3b8;
+}
+
+.detail-value {
+    color: #1e293b;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.dark-theme .detail-value {
+    color: #f1f5f9;
+}
+
+.text-muted {
+    color: #94a3b8;
+    font-style: italic;
+}
+
+/* Status and Role Badges in Details */
+.detail-value .status-badge,
+.detail-value .role-badge {
+    padding: 0.35rem 0.85rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.status-badge.status-active {
+    background: #dcfce7;
+    color: #166534;
+    border: 1px solid #86efac;
+}
+
+.status-badge.status-inactive {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fca5a5;
+}
+
+.dark-theme .status-badge.status-active {
+    background: #064e3b;
+    color: #86efac;
+}
+
+.dark-theme .status-badge.status-inactive {
+    background: #7f1d1d;
+    color: #fca5a5;
+}
+
+/* Role badges in details */
+.detail-value .role-badge {
+    background: #dbeafe;
+    color: #1e40af;
+    border: 1px solid #93c5fd;
+}
+
+.detail-value .role-badge.role-master_admin {
+    background: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fbbf24;
+}
+
+.dark-theme .detail-value .role-badge {
+    background: #1e3a8a;
+    color: #93c5fd;
+}
+
+.dark-theme .detail-value .role-badge.role-master_admin {
+    background: #78350f;
+    color: #fbbf24;
+}
+
+/* Online Status Indicator */
+.online-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0.85rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.online-indicator::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: block;
+}
+
+.online-indicator.online {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.online-indicator.online::before {
+    background: #16a34a;
+    animation: pulse-dot 2s infinite;
+}
+
+.online-indicator.offline {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+.online-indicator.offline::before {
+    background: #9ca3af;
+}
+
+.online-indicator.never {
+    background: #f3f4f6;
+    color: #9ca3af;
+}
+
+.online-indicator.never::before {
+    background: #d1d5db;
+}
+
+.dark-theme .online-indicator.online {
+    background: #064e3b;
+    color: #86efac;
+}
+
+.dark-theme .online-indicator.offline,
+.dark-theme .online-indicator.never {
+    background: #374151;
+    color: #9ca3b8;
+}
+
+@keyframes pulse-dot {
+    0%, 100% {
+        opacity: 1;
+        box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.7);
+    }
+    50% {
+        opacity: 0.8;
+        box-shadow: 0 0 0 4px rgba(22, 163, 74, 0);
+    }
+}
+
+/* Form Input in Edit Mode */
+.form-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.2s;
+    background: white;
+    color: #1e293b;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.dark-theme .form-input {
+    background: #0f172a;
+    border-color: #334155;
+    color: #f1f5f9;
+}
+
+.dark-theme .form-input:focus {
+    border-color: #764ba2;
+}
+
+/* Profile Actions */
+.profile-actions {
+    padding: 0 2rem 2rem;
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.profile-actions .btn {
+    padding: 0.875rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 10px;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.profile-actions .btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.profile-actions .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+.profile-actions .btn-outline {
+    background: white;
+    color: #667eea;
+    border: 2px solid #667eea;
+}
+
+.profile-actions .btn-outline:hover {
+    background: #f8f9fa;
+    transform: translateY(-2px);
+}
+
+.dark-theme .profile-actions .btn-outline {
+    background: #1e293b;
+    border-color: #764ba2;
+    color: #764ba2;
+}
+
+.dark-theme .profile-actions .btn-outline:hover {
+    background: #0f172a;
+}
+
+/* Message Box */
+.message-box {
+    margin: 0 2rem 1rem;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    display: none;
+}
+
+.message-box.success {
+    background: #dcfce7;
+    color: #166534;
+    border-left: 4px solid #16a34a;
+}
+
+.message-box.error {
+    background: #fee2e2;
+    color: #991b1b;
+    border-left: 4px solid #dc2626;
+}
+
+.message-box.loading {
+    background: #dbeafe;
+    color: #1e40af;
+    border-left: 4px solid #3b82f6;
+}
+
+.dark-theme .message-box.success {
+    background: #064e3b;
+    color: #86efac;
+}
+
+.dark-theme .message-box.error {
+    background: #7f1d1d;
+    color: #fca5a5;
+}
+
+.dark-theme .message-box.loading {
+    background: #1e3a8a;
+    color: #93c5fd;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .profile-container {
+        margin: 1rem;
+        border-radius: 12px;
+    }
+
+    .profile-header {
+        flex-direction: column;
+        text-align: center;
+        padding: 2rem 1.5rem;
+    }
+
+    .profile-avatar {
+        width: 100px;
+        height: 100px;
+        font-size: 2.5rem;
+    }
+
+    .profile-info h2 {
+        font-size: 1.5rem;
+    }
+
+    .profile-details {
+        padding: 1.5rem;
+    }
+
+    .detail-row {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+
+    .detail-row label {
+        font-size: 0.85rem;
+    }
+
+    .profile-actions {
+        flex-direction: column;
+        padding: 0 1.5rem 1.5rem;
+    }
+
+    .profile-actions .btn {
+        width: 100%;
+    }
+}
