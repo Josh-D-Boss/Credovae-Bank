@@ -6,12 +6,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BankDash - Professional Banking Dashboard</title>
     <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/mobile.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
+    <!-- MOBILE MENU BUTTON -->
+    <button class="mobile-menu-btn" id="mobileMenuToggle" aria-label="Toggle menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+    </button>
+
+    <!-- SIDEBAR OVERLAY -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
     <div id="app" class="min-h-screen bg-background transition-colors">
 
         <!-- ================================================================ -->
@@ -19,22 +32,20 @@
         <!-- ================================================================ -->
         <div id="login-page" class="login-container">
             <div class="login-card">
-<div class="login-header">
-    <img src="../assets/logo.svg" 
-         alt="Credovae Bank Logo" 
-         style="width: 80px; 
-                height: 80px; 
-                display: block; 
-                margin: 0 auto 1.25rem auto; 
-                object-fit: contain;">
-    <h1 class="text-3xl font-bold">Credovae Bank</h1>
-    <p class="text-muted-foreground mt-2">Secure Client Portal</p>
-</div>
+                <div class="login-header">
+                    <img src="../assets/logo.svg" alt="Credovae Bank Logo" style="width: 80px; 
+                        height: 80px; 
+                        display: block; 
+                        margin: 0 auto 1.25rem auto; 
+                        object-fit: contain;">
+                    <h1 class="text-3xl font-bold">Credovae Bank</h1>
+                    <p class="text-muted-foreground mt-2">Secure Client Portal</p>
+                </div>
 
                 <form id="login-form" class="space-y-4">
                     <div class="space-y-2">
                         <label class="label">Email Address</label>
-                        <input type="email" id="login-email" class="input" placeholder="name@email.com" required />
+                        <input type="email" id="login-email" class="input" placeholder="user@example.com" required />
                     </div>
 
                     <div class="space-y-2">
@@ -52,28 +63,34 @@
         <!-- MAIN DASHBOARD (Hidden until logged in) -->
         <!-- ================================================================ -->
         <div id="dashboard-page" class="hidden min-h-screen flex responsive-flex">
-
+        
             <!-- SIDEBAR -->
             <div class="sidebar w-64 min-h-screen bg-sidebar border-r border-sidebar-border transition-all">
-                <div class="p-4 border-b border-sidebar-border">
+                <!-- CLOSE BUTTON FOR MOBILE -->
+                <button class="sidebar-close-btn" id="sidebarClose" aria-label="Close menu">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+        
+                <div class="p-6 space-y-2 border-b border-sidebar-border">
     <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: nowrap;">
-        <img src="../assets/logo.svg" 
-             alt="Credovae Bank Logo" 
-             style="width: 32px; 
-                    height: 32px; 
-                    object-fit: contain; 
-                    flex-shrink: 0;">
+        <img src="../assets/logo.svg" alt="Credovae Bank Logo" style="width: 32px; 
+                        height: 32px; 
+                        object-fit: contain; 
+                        flex-shrink: 0;">
         <div style="min-width: 0;">
             <h2 style="font-size: 1rem; 
-                       font-weight: 700; 
-                       white-space: nowrap; 
-                       color: var(--sidebar-foreground);">Credovae Bank</h2>
+                           font-weight: 700; 
+                           white-space: nowrap; 
+                           color: var(--sidebar-foreground);">Credovae Bank</h2>
             <p style="font-size: 0.7rem; 
-                      color: var(--muted-foreground); 
-                      white-space: nowrap;">Private & Corporate Banking</p>
+                          color: var(--muted-foreground); 
+                          white-space: nowrap;">Private & Corporate Banking</p>
         </div>
     </div>
-</div>
+    </div>
 
                 <nav class="px-4 space-y-2 py-6">
                     <button class="nav-item active" data-section="dashboard">
