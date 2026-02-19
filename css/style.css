@@ -1065,6 +1065,100 @@ p {
     .cta-content p {
         font-size: 1rem;
     }
+    /* ====================================
+       FIX 1: HIDE LOGIN BUTTON ON MOBILE
+       ==================================== */
+    .navbar-actions .btn-login,
+    .navbar-actions .btn-primary {
+        display: none !important;
+    }
+
+ /* ====================================
+   FIX 2: REARRANGE HEADER LAYOUT
+   Logo left, Theme + Hamburger right (touching)
+   ==================================== */
+.navbar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    position: relative;
+}
+
+.navbar-brand {
+    order: 1;
+    flex: 0 0 auto;
+}
+
+.navbar-actions {
+    order: 2;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;  /* ← Small gap = touching */
+    margin-left: auto;
+}
+
+.theme-toggle {
+    order: 1;
+    padding: 0.5rem;
+    font-size: 1.25rem;
+}
+
+.hamburger {
+    order: 2;
+    padding: 0.5rem;
+}
+
+    /* ====================================
+       FIX 3: FIX "HOME" TEXT BLEEDING
+       ==================================== */
+    .nav-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        background-color: var(--bg-primary);
+        border-bottom: 1px solid var(--border-color);
+        padding: 0; /* Remove padding when closed */
+        gap: 0;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease, padding 0.3s ease;
+        z-index: 999;
+    }
+
+    .nav-menu.active {
+        max-height: 300px;
+        padding: 1rem 2rem; /* Add padding only when open */
+        gap: 1rem;
+    }
+
+    /* ====================================
+       COMPLETE MOBILE HEADER LAYOUT
+       ==================================== */
+    
+    /* Logo - left side */
+    .navbar-brand a {
+        font-size: 1rem;
+        white-space: nowrap;
+    }
+
+    /* Icons container - right side */
+    .navbar-actions {
+        flex-shrink: 0;
+    }
+
+    /* Theme toggle button */
+    .theme-toggle {
+        padding: 0.5rem;
+        font-size: 1.25rem;
+    }
+
+    /* Hamburger button */
+    .hamburger {
+        padding: 0.5rem;
+    }
 }
 
 /* ============================================
@@ -1468,4 +1562,103 @@ a {
 
 .toggle-switch.disabled .toggle-slider {
     cursor: not-allowed;
+}
+
+/* ============================================
+   MOBILE FIXES - FORCE LAYOUT
+   ============================================ */
+
+@media screen and (max-width: 480px) {
+    /* Typography */
+    h1 { font-size: 1.75rem; }
+    h2 { font-size: 1.25rem; }
+    
+    .hero-title { font-size: 1.25rem !important; }
+    .hero-subtitle { font-size: 0.8rem !important; }
+    .globe-animation {
+        width: 140px !important;
+        height: 140px !important;
+        font-size: 70px !important;
+    }
+    
+    .section-title { font-size: 1.5rem; margin-bottom: 1.5rem; }
+    .btn-primary { padding: 0.75rem 1.5rem; font-size: 0.95rem; }
+    
+    /* ==========================================
+       NAVBAR - ABSOLUTE OVERRIDE
+       ========================================== */
+    
+    body .navbar .navbar-container {
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        padding: 1rem !important;
+        gap: 0 !important;
+    }
+    
+    body .navbar .navbar-brand {
+        order: 1 !important;
+        margin-right: auto !important;
+        margin-left: 0 !important;
+    }
+    
+    body .navbar .navbar-brand a {
+        display: flex !important;
+        align-items: center !important;
+        gap: 0.5rem !important;
+        font-size: 1rem !important;
+    }
+    
+    body .navbar .navbar-actions {
+        order: 2 !important;
+        display: flex !important;
+        flex-direction: row !important;  /* ← ADD THIS LINE */
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 0.25rem !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+    
+    body .navbar .navbar-actions .theme-toggle {
+        display: flex !important;
+        order: 1 !important;
+        padding: 0.5rem !important;
+    }
+    
+    body .navbar .navbar-actions .hamburger {
+        display: flex !important;
+        order: 2 !important;
+        padding: 0.5rem !important;
+    }
+    
+    body .navbar .navbar-actions .btn-login,
+    body .navbar .navbar-actions .btn-primary {
+        display: none !important;
+    }
+    
+    /* Mobile Menu */
+    body .navbar .nav-menu {
+        position: absolute !important;
+        top: 100% !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        flex-direction: column !important;
+        background-color: var(--bg-primary) !important;
+        border-bottom: 1px solid var(--border-color) !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        gap: 0 !important;
+        max-height: 0 !important;
+        overflow: hidden !important;
+        z-index: 999 !important;
+    }
+    
+    body .navbar .nav-menu.active {
+        max-height: 300px !important;
+        padding: 1rem 2rem !important;
+        gap: 1rem !important;
+    }
 }
