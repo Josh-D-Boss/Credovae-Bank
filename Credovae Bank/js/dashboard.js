@@ -1016,6 +1016,74 @@ document.addEventListener('DOMContentLoaded', async () => {
       localStorage.setItem('theme', appState.isDarkMode ? 'dark' : 'light')
     })
   }
+
+  // ============================================================================
+  // 📱 MOBILE MENU FUNCTIONALITY
+  // ============================================================================
+  
+  const mobileMenuBtn = document.getElementById('mobileMenuToggle')
+  const sidebar = document.querySelector('.sidebar')
+  const sidebarOverlay = document.getElementById('sidebarOverlay')
+  const sidebarCloseBtn = document.getElementById('sidebarClose')
+  
+  if (mobileMenuBtn && sidebar && sidebarOverlay) {
+    // Open sidebar when hamburger is clicked
+    mobileMenuBtn.addEventListener('click', function() {
+      console.log('📱 Mobile menu opened')
+      sidebar.classList.add('mobile-open')
+      sidebarOverlay.classList.add('active')
+      document.body.style.overflow = 'hidden'
+    })
+    
+    // Close sidebar when overlay is clicked
+    sidebarOverlay.addEventListener('click', function() {
+      console.log('📱 Mobile menu closed (overlay)')
+      sidebar.classList.remove('mobile-open')
+      sidebarOverlay.classList.remove('active')
+      document.body.style.overflow = ''
+    })
+    
+    // Close sidebar when close button is clicked
+    if (sidebarCloseBtn) {
+      sidebarCloseBtn.addEventListener('click', function() {
+        console.log('📱 Mobile menu closed (button)')
+        sidebar.classList.remove('mobile-open')
+        sidebarOverlay.classList.remove('active')
+        document.body.style.overflow = ''
+      })
+    }
+    
+    // Close sidebar when nav item is clicked (on mobile)
+    document.querySelectorAll('.nav-item').forEach(function(navItem) {
+      navItem.addEventListener('click', function() {
+        if (window.innerWidth <= 768) {
+          setTimeout(() => {
+            sidebar.classList.remove('mobile-open')
+            sidebarOverlay.classList.remove('active')
+            document.body.style.overflow = ''
+          }, 300)
+        }
+      })
+    })
+    
+    // Close sidebar when escape key is pressed
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && sidebar.classList.contains('mobile-open')) {
+        sidebar.classList.remove('mobile-open')
+        sidebarOverlay.classList.remove('active')
+        document.body.style.overflow = ''
+      }
+    })
+    
+    console.log('✅ Mobile menu initialized')
+  } else {
+    console.warn('⚠️ Mobile menu elements not found')
+  }
+  
+  // ============================================================================
+  // END MOBILE MENU
+  // ============================================================================
+
   document.querySelectorAll('.transfer-method-card').forEach(card => {
     card.addEventListener('click', () => {
       appState.currentTransfer.method = card.dataset.method
