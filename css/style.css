@@ -858,6 +858,10 @@ p {
    RESPONSIVE DESIGN
    ============================================ */
 
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
 @media (max-width: 768px) {
     h1 {
         font-size: 2rem;
@@ -894,29 +898,58 @@ p {
         display: none;
     }
 
+    /* ====================================
+       HERO SECTION - HYBRID LAYOUT
+       Keep desktop layout on mobile!
+       ==================================== */
     .hero {
-        grid-template-columns: 1fr;
-        padding: 2rem 0;
+        display: flex !important;
+        flex-direction: row !important; /* FORCE side-by-side */
+        gap: 1rem !important;
+        padding: 2rem 1rem !important;
+        min-height: unset !important;
     }
 
-    .hero-title {
-        font-size: 2rem;
-    }
-
-    .hero-subtitle {
-        font-size: 1rem;
+    .hero-content {
+        flex: 0 0 55% !important;
+        max-width: 55% !important;
+        padding-right: 0.5rem !important;
     }
 
     .hero-visual {
-        min-height: 250px;
+        flex: 0 0 45% !important;
+        max-width: 45% !important;
+        min-height: unset !important;
+    }
+
+    .hero-title {
+        font-size: 1.5rem !important;
+        line-height: 1.2 !important;
+        margin-bottom: 0.5rem !important;
+    }
+
+    .hero-subtitle {
+        font-size: 0.875rem !important;
+        line-height: 1.4 !important;
+        margin-bottom: 1rem !important;
     }
 
     .globe-animation {
-        width: 200px;
-        height: 200px;
-        font-size: 100px;
+        width: 100% !important;
+        max-width: 180px !important;
+        height: 180px !important;
+        font-size: 90px !important;
     }
 
+    .hero-email-section .btn-primary {
+        padding: 0.5rem 1.5rem !important;
+        font-size: 0.875rem !important;
+        width: auto !important;
+    }
+
+    /* ====================================
+       EVERYTHING ELSE - NORMAL MOBILE
+       ==================================== */
     .section-title {
         font-size: 1.75rem;
         margin-bottom: 2rem;
@@ -953,9 +986,22 @@ p {
     .nav-menu {
         gap: 0.5rem;
     }
+
+    /* Stack all grids vertically */
+    .benefits-grid,
+    .services-grid,
+    .trust-grid,
+    .values-grid,
+    .clientele-grid,
+    .standards-grid,
+    .presence-grid,
+    .footer-grid {
+        grid-template-columns: 1fr !important;
+    }
 }
 
 @media (max-width: 480px) {
+    /* Extra small devices */
     h1 {
         font-size: 1.75rem;
     }
@@ -965,15 +1011,17 @@ p {
     }
 
     .hero-title {
-        font-size: 1.5rem;
+        font-size: 1.25rem !important;
     }
 
     .hero-subtitle {
-        font-size: 0.95rem;
+        font-size: 0.8rem !important;
     }
 
-    .hero {
-        padding: 1.5rem 0;
+    .globe-animation {
+        width: 140px !important;
+        height: 140px !important;
+        font-size: 70px !important;
     }
 
     .btn-primary {
@@ -985,17 +1033,6 @@ p {
     .btn-large {
         padding: 0.875rem 1.5rem;
         font-size: 1rem;
-    }
-
-    .benefits-grid,
-    .services-grid,
-    .trust-grid,
-    .values-grid,
-    .clientele-grid,
-    .standards-grid,
-    .presence-grid,
-    .footer-grid {
-        grid-template-columns: 1fr;
     }
 
     .section-title {
