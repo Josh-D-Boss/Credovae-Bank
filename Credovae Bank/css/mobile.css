@@ -1,0 +1,241 @@
+/* ============================================================================
+   MOBILE RESPONSIVE FIXES FOR USER DASHBOARD
+   Add this to your dashboard.css or create a new mobile.css file
+   ============================================================================ */
+
+/* Mobile Hamburger Menu Button (CRITICAL - ADD THIS) */
+.mobile-menu-btn {
+    display: none; /* Hidden on desktop */
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 1000;
+    background: var(--primary, #3b82f6);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.mobile-menu-btn:active {
+    transform: scale(0.95);
+}
+
+.mobile-menu-btn svg {
+    width: 24px;
+    height: 24px;
+    display: block;
+}
+
+/* Show hamburger button on mobile */
+@media (max-width: 768px) {
+    .mobile-menu-btn {
+        display: block;
+    }
+}
+
+/* ============================================================================
+   SIDEBAR RESPONSIVE FIXES
+   ============================================================================ */
+
+/* Desktop sidebar (normal) */
+.sidebar {
+    transition: transform 0.3s ease;
+}
+
+/* Mobile: Hide sidebar by default */
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        z-index: 999;
+        transform: translateX(-100%); /* Hidden off-screen */
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* When menu is open */
+    .sidebar.mobile-open {
+        transform: translateX(0); /* Slide in */
+    }
+    
+    /* Overlay when menu is open */
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 998;
+    }
+    
+    .sidebar-overlay.active {
+        display: block;
+    }
+}
+
+/* ============================================================================
+   CONTENT AREA FIXES
+   ============================================================================ */
+
+/* On mobile, make sure content takes full width */
+@media (max-width: 768px) {
+    .responsive-flex {
+        flex-direction: column;
+    }
+    
+    .flex-1 {
+        width: 100%;
+        margin-left: 0 !important;
+    }
+    
+    /* Add padding for hamburger button */
+    .page-header {
+        padding-left: 4rem !important; /* Space for hamburger */
+    }
+}
+
+/* ============================================================================
+   DASHBOARD CARD FIXES
+   ============================================================================ */
+
+@media (max-width: 768px) {
+    /* Make cards stack vertically */
+    .grid,
+    .grid-cols-1,
+    .grid-cols-2,
+    .grid-cols-3,
+    .md\\:grid-cols-2,
+    .md\\:grid-cols-3 {
+        grid-template-columns: 1fr !important;
+    }
+    
+    /* Adjust padding */
+    .p-8 {
+        padding: 1rem !important;
+    }
+    
+    /* Fix text sizes */
+    .text-3xl {
+        font-size: 1.875rem !important;
+    }
+    
+    .text-2xl {
+        font-size: 1.5rem !important;
+    }
+    
+    /* Fix button sizes */
+    .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* ============================================================================
+   MODAL FIXES FOR MOBILE
+   ============================================================================ */
+
+@media (max-width: 768px) {
+    .modal-content {
+        width: 95vw !important;
+        max-width: 95vw !important;
+        margin: 1rem !important;
+    }
+    
+    .modal-content.max-w-2xl,
+    .modal-content.max-w-md {
+        max-width: 95vw !important;
+    }
+}
+
+/* ============================================================================
+   THEME TOGGLE BUTTON FIX
+   ============================================================================ */
+
+@media (max-width: 768px) {
+    .theme-toggle-header {
+        padding: 0.5rem !important;
+    }
+    
+    .theme-toggle-header span {
+        display: none; /* Hide "Theme" text on mobile */
+    }
+}
+
+/* ============================================================================
+   WELCOME MESSAGE FIX
+   ============================================================================ */
+
+@media (max-width: 640px) {
+    #user-welcome {
+        font-size: 0.75rem;
+        max-width: 120px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
+
+/* ============================================================================
+   BALANCE DISPLAY FIX
+   ============================================================================ */
+
+@media (max-width: 640px) {
+    /* Make balance text responsive */
+    .text-5xl {
+        font-size: 2.5rem !important;
+    }
+    
+    .text-4xl {
+        font-size: 2rem !important;
+    }
+}
+
+/* ============================================================================
+   NAVIGATION ITEMS FIX
+   ============================================================================ */
+
+@media (max-width: 768px) {
+    .nav-item {
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+    }
+    
+    .nav-item .icon {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+/* ============================================================================
+   CLOSE BUTTON FOR MOBILE SIDEBAR
+   ============================================================================ */
+
+.sidebar-close-btn {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .sidebar-close-btn {
+        display: block;
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: transparent;
+        border: none;
+        padding: 0.5rem;
+        cursor: pointer;
+        color: var(--sidebar-foreground);
+    }
+    
+    .sidebar-close-btn svg {
+        width: 24px;
+        height: 24px;
+    }
+}
