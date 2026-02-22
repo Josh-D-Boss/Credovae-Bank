@@ -1616,7 +1616,7 @@ async function submitSimulatedTransaction(e) {
         type: type === 'Debit' ? 'OUTGOING' : 'INCOMING',
         amount: amount,
         recipient_name: 'Bank Transfer',
-        recipient_bank: 'Titan Energy Group',
+        recipient_bank: 'Internal',
         recipient_account: 'TXN-' + Date.now(),
         description: 'Account Credit',
         status: 'PENDING',
