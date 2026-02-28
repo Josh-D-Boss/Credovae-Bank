@@ -14,43 +14,331 @@ const appState = {
 }
 
 // ============================================================================
-// AUTO-REFRESH SYSTEM (Syncs with admin changes)
+// COUNTRY → LOCAL BANK CODE CONFIG
+// Each entry: { label, placeholder, hint, pattern, errorMsg, required }
+// Countries set to required:true will show & require the field.
+// Countries set to required:false will show the field but not require it.
+// Countries not in this map → field is hidden entirely.
+// ============================================================================
+
+const COUNTRY_BANK_CODE = {
+  // ── Americas ──
+  US: {
+    label: 'ABA Routing Number *',
+    placeholder: '9-digit routing number',
+    hint: 'Enter the routing or bank code required for the recipient’s country.',
+    pattern: /^\d{9}$/,
+    errorMsg: 'ABA Routing Number must be exactly 9 digits.',
+    required: true
+  },
+  CA: {
+    label: 'Transit Number *',
+    placeholder: 'DDDDD-BBB (5-digit branch + 3-digit bank)',
+    hint: 'Enter the routing or bank code required for the recipient’s country.',
+    pattern: /^\d{5}-?\d{3}$/,
+    errorMsg: 'Canadian transit number must be 5 branch digits and 3 institution digits (e.g. 12345-006).',
+    required: true
+  },
+  MX: {
+    label: 'CLABE *',
+    placeholder: '18-digit CLABE number',
+    hint: 'Enter the routing or bank code required for the recipient’s country.',
+    pattern: /^\d{18}$/,
+    errorMsg: 'CLABE must be exactly 18 digits.',
+    required: true
+  },
+  BR: {
+    label: 'ISPB / Bank Code *',
+    placeholder: '8-digit ISPB code',
+    hint: 'Enter the routing or bank code required for the recipient’s country.',
+    pattern: /^\d{8}$/,
+    errorMsg: 'ISPB must be exactly 8 digits.',
+    required: true
+  },
+
+  // ── Europe (IBAN countries — Sort Code / BIC usually optional) ──
+  GB: {
+    label: 'Sort Code *',
+    placeholder: 'XX-XX-XX',
+    hint: 'Enter the routing or bank code required for the recipient’s country.',
+    pattern: /^\d{2}-?\d{2}-?\d{2}$/,
+    errorMsg: 'Sort Code must be 6 digits (e.g. 12-34-56).',
+    required: true
+  },
+  DE: {
+    label: 'BIC / SWIFT Code',
+    placeholder: '8 or 11 character BIC',
+    hint: 'Optional for SEPA transfers.',
+    pattern: /^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/i,
+    errorMsg: 'BIC must be 8 or 11 alphanumeric characters.',
+    required: false
+  },
+  FR: {
+    label: 'BIC / SWIFT Code',
+    placeholder: '8 or 11 character BIC',
+    hint: 'Optional for SEPA transfers.',
+    pattern: /^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/i,
+    errorMsg: 'BIC must be 8 or 11 alphanumeric characters.',
+    required: false
+  },
+  ES: {
+    label: 'BIC / SWIFT Code',
+    placeholder: '8 or 11 character BIC',
+    hint: 'Optional for SEPA transfers.',
+    pattern: /^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/i,
+    errorMsg: 'BIC must be 8 or 11 alphanumeric characters.',
+    required: false
+  },
+  IT: {
+    label: 'BIC / SWIFT Code',
+    placeholder: '8 or 11 character BIC',
+    hint: 'Optional for SEPA transfers.',
+    pattern: /^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/i,
+    errorMsg: 'BIC must be 8 or 11 alphanumeric characters.',
+    required: false
+  },
+  NL: {
+    label: 'BIC / SWIFT Code',
+    placeholder: '8 or 11 character BIC',
+    hint: 'Optional for SEPA transfers.',
+    pattern: /^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/i,
+    errorMsg: 'BIC must be 8 or 11 alphanumeric characters.',
+    required: false
+  },
+  CH: {
+    label: 'BIC / SWIFT Code',
+    placeholder: '8 or 11 character BIC',
+    hint: 'Required for SWIFT transfers to Switzerland.',
+    pattern: /^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/i,
+    errorMsg: 'BIC must be 8 or 11 alphanumeric characters.',
+    required: false
+  },
+  SE: {
+    label: 'Bankgiro / Clearing Number',
+    placeholder: 'e.g. 3300 or 1234-5678',
+    hint: 'Swedish clearing number or Bankgiro number.',
+    pattern: /^[\d\- ]{4,12}$/,
+    errorMsg: 'Please enter a valid Swedish clearing or Bankgiro number.',
+    required: false
+  },
+  NO: {
+    label: 'BIC / SWIFT Code',
+    placeholder: '8 or 11 character BIC',
+    hint: 'Required for international transfers to Norway.',
+    pattern: /^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/i,
+    errorMsg: 'BIC must be 8 or 11 alphanumeric characters.',
+    required: false
+  },
+  DK: {
+    label: 'BIC / SWIFT Code',
+    placeholder: '8 or 11 character BIC',
+    hint: 'Required for international transfers to Denmark.',
+    pattern: /^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/i,
+    errorMsg: 'BIC must be 8 or 11 alphanumeric characters.',
+    required: false
+  },
+  PL: {
+    label: 'BIC / SWIFT Code',
+    placeholder: '8 or 11 character BIC',
+    hint: 'Required for international SWIFT transfers to Poland.',
+    pattern: /^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/i,
+    errorMsg: 'BIC must be 8 or 11 alphanumeric characters.',
+    required: false
+  },
+  PT: {
+    label: 'BIC / SWIFT Code',
+    placeholder: '8 or 11 character BIC',
+    hint: 'Optional for SEPA, required for SWIFT.',
+    pattern: /^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/i,
+    errorMsg: 'BIC must be 8 or 11 alphanumeric characters.',
+    required: false
+  },
+
+  // ── Asia-Pacific ──
+  AU: {
+    label: 'BSB Number *',
+    placeholder: 'XXX-XXX',
+    hint: 'Australian BSB (Bank State Branch) — 6 digits.',
+    pattern: /^\d{3}-?\d{3}$/,
+    errorMsg: 'BSB must be 6 digits (e.g. 062-000).',
+    required: true
+  },
+  NZ: {
+    label: 'Bank Branch Code *',
+    placeholder: 'XX-XXXX (bank-branch)',
+    hint: 'Enter the routing or bank code required for the recipient’s country.',
+    pattern: /^\d{2}-?\d{4}$/,
+    errorMsg: 'NZ Bank Branch must be 6 digits (e.g. 01-0102).',
+    required: true
+  },
+  JP: {
+    label: 'Zengin Bank Code *',
+    placeholder: '4-digit bank code',
+    hint: 'Japanese Zengin bank code — 4 digits.',
+    pattern: /^\d{4}$/,
+    errorMsg: 'Zengin bank code must be exactly 4 digits.',
+    required: true
+  },
+  CN: {
+    label: 'CNAPS Code *',
+    placeholder: '12-digit CNAPS code',
+    hint: 'Chinese National Advanced Payment System code — 12 digits.',
+    pattern: /^\d{12}$/,
+    errorMsg: 'CNAPS code must be exactly 12 digits.',
+    required: true
+  },
+  IN: {
+    label: 'IFSC Code *',
+    placeholder: 'e.g. HDFC0001234',
+    hint: 'Indian Financial System Code.',
+    pattern: /^[A-Z]{4}0[A-Z0-9]{6}$/i,
+    errorMsg: 'IFSC must be 11 characters (e.g. HDFC0001234).',
+    required: true
+  },
+  SG: {
+    label: 'Bank Code *',
+    placeholder: '4-digit bank code',
+    hint: 'Singapore bank code — 4 digits.',
+    pattern: /^\d{4}$/,
+    errorMsg: 'Singapore bank code must be exactly 4 digits.',
+    required: true
+  },
+  HK: {
+    label: 'Bank Code *',
+    placeholder: '3-digit bank code',
+    hint: 'Hong Kong bank code — 3 digits.',
+    pattern: /^\d{3}$/,
+    errorMsg: 'Hong Kong bank code must be exactly 3 digits.',
+    required: true
+  },
+  KR: {
+    label: 'Bank Code *',
+    placeholder: '3-digit bank code',
+    hint: 'South Korean bank code — 3 digits.',
+    pattern: /^\d{3}$/,
+    errorMsg: 'South Korean bank code must be exactly 3 digits.',
+    required: true
+  },
+  MY: {
+    label: 'IBG Bank Code *',
+    placeholder: '2-digit IBG code',
+    hint: 'Malaysia IBG (Interbank GIRO) bank code — 2 digits.',
+    pattern: /^\d{2}$/,
+    errorMsg: 'Malaysia IBG bank code must be exactly 2 digits.',
+    required: true
+  },
+  PH: {
+    label: 'Bank Code *',
+    placeholder: '4-digit bank code',
+    hint: 'Philippine bank code — 4 digits.',
+    pattern: /^\d{4}$/,
+    errorMsg: 'Philippine bank code must be exactly 4 digits.',
+    required: true
+  },
+  TH: {
+    label: 'BAHTNET Bank Code *',
+    placeholder: '3-digit bank code',
+    hint: 'Thai BAHTNET bank code — 3 digits.',
+    pattern: /^\d{3}$/,
+    errorMsg: 'Thai bank code must be exactly 3 digits.',
+    required: true
+  },
+  ID: {
+    label: 'Bank Code *',
+    placeholder: '3-digit bank code',
+    hint: 'Indonesian bank code — 3 digits.',
+    pattern: /^\d{3}$/,
+    errorMsg: 'Indonesian bank code must be exactly 3 digits.',
+    required: true
+  },
+
+  // ── Middle East & Africa ──
+  AE: {
+    label: 'BIC / SWIFT Code',
+    placeholder: '8 or 11 character BIC',
+    hint: 'Required for transfers to the UAE.',
+    pattern: /^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/i,
+    errorMsg: 'BIC must be 8 or 11 alphanumeric characters.',
+    required: false
+  },
+  SA: {
+    label: 'BIC / SWIFT Code',
+    placeholder: '8 or 11 character BIC',
+    hint: 'Required for transfers to Saudi Arabia.',
+    pattern: /^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/i,
+    errorMsg: 'BIC must be 8 or 11 alphanumeric characters.',
+    required: false
+  },
+  NG: {
+    label: 'Sort Code *',
+    placeholder: '6-digit sort code',
+    hint: 'Nigerian bank sort code — 6 digits.',
+    pattern: /^\d{6}$/,
+    errorMsg: 'Nigerian sort code must be exactly 6 digits.',
+    required: true
+  },
+  ZA: {
+    label: 'Branch Code *',
+    placeholder: '6-digit branch code',
+    hint: 'South African bank branch code — 6 digits.',
+    pattern: /^\d{6}$/,
+    errorMsg: 'South African branch code must be exactly 6 digits.',
+    required: true
+  },
+  KE: {
+    label: 'Bank Code *',
+    placeholder: '5-digit bank code',
+    hint: 'Kenyan bank code — typically 5 digits.',
+    pattern: /^\d{5}$/,
+    errorMsg: 'Kenyan bank code must be exactly 5 digits.',
+    required: true
+  },
+  GH: {
+    label: 'Bank Code *',
+    placeholder: '6-digit bank code',
+    hint: 'Ghanaian bank code — 6 digits.',
+    pattern: /^\d{6}$/,
+    errorMsg: 'Ghanaian bank code must be exactly 6 digits.',
+    required: true
+  },
+  EG: {
+    label: 'BIC / SWIFT Code',
+    placeholder: '8 or 11 character BIC',
+    hint: 'Required for international transfers to Egypt.',
+    pattern: /^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/i,
+    errorMsg: 'BIC must be 8 or 11 alphanumeric characters.',
+    required: false
+  },
+
+  // OTHER → hide field entirely (handled in JS)
+  OTHER: null
+}
+
+// ============================================================================
+// AUTO-REFRESH SYSTEM
 // ============================================================================
 
 async function startAutoRefresh() {
-  // Refresh account balance and transactions every 10 seconds
   appState.autoRefreshInterval = setInterval(async () => {
     if (!appState.isLoggedIn || !appState.currentUser) return
-
     try {
-      // Refresh account balance
       const { data: account } = await window.supabaseClient
         .from('accounts')
         .select('*')
         .eq('id', appState.currentUser.account.id)
         .single()
 
-      if (account) {
-        // Only update display if balance changed (to avoid flickering)
-        if (account.balance !== appState.currentUser.account.balance) {
-          console.log('📊 Balance updated:', account.balance)
-          appState.currentUser.account.balance = account.balance
-
-          // Refresh the current view if on dashboard
-          const activeSection = document.querySelector('.nav-item.active')?.dataset.section
-          if (activeSection === 'dashboard') {
-            await renderDashboardOverview()
-          } else if (activeSection === 'wallet') {
-            renderWalletPage()
-          } else if (activeSection === 'messages') {
-            await renderMessagesPage()
-          }
-        }
+      if (account && account.balance !== appState.currentUser.account.balance) {
+        appState.currentUser.account.balance = account.balance
+        const activeSection = document.querySelector('.nav-item.active')?.dataset.section
+        if (activeSection === 'dashboard') await renderDashboardOverview()
+        else if (activeSection === 'wallet') renderWalletPage()
+        else if (activeSection === 'messages') await renderMessagesPage()
       }
     } catch (error) {
       console.error('Auto-refresh failed:', error)
     }
-  }, 10000) // 10 second refresh interval
+  }, 10000)
 }
 
 function stopAutoRefresh() {
@@ -61,28 +349,21 @@ function stopAutoRefresh() {
 }
 
 // ============================================================================
-// AUTHENTICATION SYSTEM (SUPABASE AUTH)
+// AUTHENTICATION SYSTEM
 // ============================================================================
 
 class AuthManager {
   static async login(email, password) {
     try {
-      console.log('🔐 Attempting login for:', email)
-
-      // ✅ Use Supabase Auth instead of direct table query
       const { data: authData, error: authError } = await window.supabaseClient.auth.signInWithPassword({
-        email: email,
-        password: password
+        email,
+        password
       })
 
       if (authError || !authData.user) {
-        console.error('Login failed:', authError)
         return { success: false, error: authError?.message || 'Invalid email or password' }
       }
 
-      console.log('✅ Auth successful:', authData.user.email)
-
-      // ✅ Now get the user's profile and account from your custom tables
       const { data: profile, error: profileError } = await window.supabaseClient
         .from('users')
         .select('*')
@@ -90,25 +371,13 @@ class AuthManager {
         .single()
 
       if (profileError) {
-        console.error('Profile fetch error:', profileError)
-        // If profile doesn't exist, create one
-        const { data: newProfile, error: createError } = await window.supabaseClient
-          .from('users')
-          .insert({
-            id: authData.user.id,
-            email: authData.user.email,
-            name: authData.user.user_metadata?.full_name || authData.user.email.split('@')[0]
-          })
-          .select()
-          .single()
-
-        if (createError) {
-          console.error('Failed to create profile:', createError)
-          return { success: false, error: 'Failed to create user profile' }
-        }
+        await window.supabaseClient.from('users').insert({
+          id: authData.user.id,
+          email: authData.user.email,
+          name: authData.user.user_metadata?.full_name || authData.user.email.split('@')[0]
+        }).select().single()
       }
 
-      // ✅ Get user's account
       const { data: account, error: accountError } = await window.supabaseClient
         .from('accounts')
         .select('*')
@@ -116,28 +385,18 @@ class AuthManager {
         .single()
 
       if (accountError) {
-        console.error('Account fetch error:', accountError)
-        // Create account if it doesn't exist
         const accountNumber = 'ACC' + Math.random().toString().slice(2, 12)
         const { data: newAccount, error: createAccError } = await window.supabaseClient
           .from('accounts')
-          .insert({
-            user_id: authData.user.id,
-            account_number: accountNumber,
-            balance: 5000.00 // Default starting balance
-          })
-          .select()
-          .single()
+          .insert({ user_id: authData.user.id, account_number: accountNumber, balance: 5000.00 })
+          .select().single()
 
-        if (createAccError) {
-          console.error('Failed to create account:', createAccError)
-          return { success: false, error: 'Failed to create account' }
-        }
+        if (createAccError) return { success: false, error: 'Failed to create account' }
 
         appState.currentUser = {
           id: authData.user.id,
           email: authData.user.email,
-          name: profile?.full_name || authData.user.email.split('@')[0],
+          name: profile?.name || authData.user.email.split('@')[0],
           account: newAccount
         }
       } else {
@@ -145,17 +404,14 @@ class AuthManager {
           id: authData.user.id,
           email: authData.user.email,
           name: profile?.name || authData.user.email.split('@')[0],
-          account: account
+          account
         }
       }
 
       appState.isLoggedIn = true
-
-      console.log('✅ Login complete!', appState.currentUser)
       startAutoRefresh()
       return { success: true, user: authData.user }
     } catch (error) {
-      console.error('Login error:', error)
       return { success: false, error: error.message }
     }
   }
@@ -170,57 +426,34 @@ class AuthManager {
 
   static async checkSession() {
     try {
-      console.log('🔍 Checking for existing session...')
-
-      // ✅ Check Supabase Auth session
       const { data: { session }, error } = await window.supabaseClient.auth.getSession()
+      if (error || !session) return false
 
-      if (error || !session) {
-        console.log('ℹ️ No session found')
-        return false
-      }
-
-      console.log('✅ Session found:', session.user.email)
-
-      // ✅ Restore user profile
       const { data: profile } = await window.supabaseClient
-        .from('users')
-        .select('*')
-        .eq('id', session.user.id)
-        .single()
+        .from('users').select('*').eq('id', session.user.id).single()
 
-      // Get account
       const { data: account } = await window.supabaseClient
-        .from('accounts')
-        .select('*')
-        .eq('user_id', session.user.id)
-        .single()
+        .from('accounts').select('*').eq('user_id', session.user.id).single()
 
-      if (!account) {
-        console.error('No account found for user')
-        return false
-      }
+      if (!account) return false
 
       appState.currentUser = {
         id: session.user.id,
         email: session.user.email,
         name: profile?.name || session.user.email.split('@')[0],
-        account: account
+        account
       }
       appState.isLoggedIn = true
-
-      console.log('✅ Session restored for:', appState.currentUser.name)
       startAutoRefresh()
       return true
     } catch (error) {
-      console.error('Session restore failed:', error)
       return false
     }
   }
 }
 
 // ============================================================================
-// OTP MANAGER - RESEND EMAIL + SUPABASE STORAGE
+// OTP MANAGER
 // ============================================================================
 
 class OTPManager {
@@ -244,23 +477,14 @@ class OTPManager {
 
       const { data: otpRecord, error: dbError } = await window.supabaseClient
         .from('otp_codes')
-        .insert({
-          user_id: appState.currentUser.id,
-          otp_hash: hashedOTP,
-          expires_at: expiresAt,
-          attempts: 0
-        })
-        .select()
-        .single()
+        .insert({ user_id: appState.currentUser.id, otp_hash: hashedOTP, expires_at: expiresAt, attempts: 0 })
+        .select().single()
 
       if (dbError) throw dbError
 
       const emailResponse = await fetch('https://api.resend.com/emails', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${CONFIG.resend.apiKey}`,
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Authorization': `Bearer ${CONFIG.resend.apiKey}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
           from: CONFIG.resend.fromEmail,
           to: userEmail,
@@ -281,18 +505,10 @@ class OTPManager {
         })
       })
 
-      if (!emailResponse.ok) {
-        const errorText = await emailResponse.text()
-        console.error('Email send failed:', errorText)
-        throw new Error('Failed to send email')
-      }
-
-      console.log('✅ OTP sent successfully')
-      console.log('🔐 OTP (for testing):', otp)
+      if (!emailResponse.ok) throw new Error('Failed to send email')
 
       return { success: true, otpId: otpRecord.id, plainOTP: otp }
     } catch (error) {
-      console.error('OTP send failed:', error)
       return { success: false, error: error.message }
     }
   }
@@ -300,84 +516,59 @@ class OTPManager {
   static async verifyOTP(otpId, enteredOTP) {
     try {
       const { data: otpRecord, error } = await window.supabaseClient
-        .from('otp_codes')
-        .select('*')
-        .eq('id', otpId)
-        .single()
+        .from('otp_codes').select('*').eq('id', otpId).single()
 
-      if (error || !otpRecord) {
-        return { success: false, error: 'Invalid OTP' }
-      }
-
-      if (new Date(otpRecord.expires_at) < new Date()) {
-        return { success: false, error: 'OTP expired' }
-      }
-
-      if (otpRecord.attempts >= 3) {
-        return { success: false, error: 'Too many attempts' }
-      }
+      if (error || !otpRecord) return { success: false, error: 'Invalid OTP' }
+      if (new Date(otpRecord.expires_at) < new Date()) return { success: false, error: 'OTP expired' }
+      if (otpRecord.attempts >= 3) return { success: false, error: 'Too many attempts' }
 
       const enteredHash = await this.hashOTP(enteredOTP)
-
       if (enteredHash !== otpRecord.otp_hash) {
-        await window.supabaseClient
-          .from('otp_codes')
-          .update({ attempts: otpRecord.attempts + 1 })
-          .eq('id', otpId)
-
+        await window.supabaseClient.from('otp_codes')
+          .update({ attempts: otpRecord.attempts + 1 }).eq('id', otpId)
         return { success: false, error: 'Invalid OTP' }
       }
 
-      await window.supabaseClient
-        .from('otp_codes')
-        .update({ used: true })
-        .eq('id', otpId)
-
+      await window.supabaseClient.from('otp_codes').update({ used: true }).eq('id', otpId)
       return { success: true }
     } catch (error) {
-      console.error('OTP verification failed:', error)
       return { success: false, error: error.message }
     }
   }
 }
 
 // ============================================================================
-// TRANSACTION MANAGER - SUPABASE DATABASE
+// TRANSACTION MANAGER
 // ============================================================================
 
 class TransactionManager {
-  static async createTransaction(type, amount, recipientName, bankName, accountNumber, description) {
+  static async createTransaction(type, amount, recipientName, bankName, accountNumber, description, country, localBankCode) {
     try {
       if (type === 'OUTGOING') {
         const newBalance = appState.currentUser.account.balance - amount
-
-        await window.supabaseClient
-          .from('accounts')
-          .update({ balance: newBalance })
-          .eq('id', appState.currentUser.account.id)
-
+        await window.supabaseClient.from('accounts')
+          .update({ balance: newBalance }).eq('id', appState.currentUser.account.id)
         appState.currentUser.account.balance = newBalance
       }
 
-      // ✅ ONLY save these fields to transactions table
       const { data: transaction, error } = await window.supabaseClient
         .from('transactions')
         .insert({
-          account_id: appState.currentUser.account.id,  // ✅ Link to account
-          type: type,                                    // ✅ INCOMING or OUTGOING
-          amount: amount,                                // ✅ Transfer amount
-          recipient_name: recipientName,                 // ✅ Who receives
-          recipient_bank: bankName,                      // ✅ Bank name
-          recipient_account: accountNumber,              // ✅ Recipient's account number
-          description: description,                      // ✅ Optional note
-          status: 'PENDING'                              // ✅ Initial status
+          account_id: appState.currentUser.account.id,
+          type,
+          amount,
+          recipient_name: recipientName,
+          recipient_bank: bankName,
+          recipient_account: accountNumber,
+          description,
+          status: 'PENDING',
+          // New fields — safely null for countries that don't use them
+          recipient_country: country || null,
+          local_bank_code: localBankCode || null
         })
-        .select()
-        .single()
+        .select().single()
 
       if (error) throw error
-
-      console.log('✅ Transaction created:', transaction)
       return { success: true, transaction }
     } catch (error) {
       console.error('Transaction creation failed:', error)
@@ -387,41 +578,78 @@ class TransactionManager {
 
   static async getTransactions() {
     try {
-      // ✅ Filter by account_id (not user_id) since transactions are linked to accounts
       const { data, error } = await window.supabaseClient
-        .from('transactions')
-        .select('*')
+        .from('transactions').select('*')
         .eq('account_id', appState.currentUser.account.id)
         .order('created_at', { ascending: false })
-
       if (error) throw error
       return data || []
     } catch (error) {
-      console.error('Failed to load transactions:', error)
       return []
     }
   }
 
   static async getStats() {
     const transactions = await this.getTransactions()
-
     const incoming = transactions
       .filter(t => t.type === 'INCOMING' && (t.status === 'SUCCESSFUL' || t.status === 'approved'))
       .reduce((sum, t) => sum + parseFloat(t.amount), 0)
-
     const outgoing = transactions
       .filter(t => t.type === 'OUTGOING' && (t.status === 'SUCCESSFUL' || t.status === 'approved'))
       .reduce((sum, t) => sum + parseFloat(t.amount), 0)
-
     const pending = transactions.filter(t => t.status === 'PENDING').length
-
-    return {
-      incomingTotal: incoming,
-      outgoingTotal: outgoing,
-      transactionCount: transactions.length,
-      pendingCount: pending
-    }
+    return { incomingTotal: incoming, outgoingTotal: outgoing, transactionCount: transactions.length, pendingCount: pending }
   }
+}
+
+// ============================================================================
+// LOCAL BANK CODE FIELD — show / hide / configure
+// ============================================================================
+
+function updateLocalCodeField(countryCode) {
+  const wrapper  = document.getElementById('local-code-wrapper')
+  const labelEl  = document.getElementById('local-code-label')
+  const inputEl  = document.getElementById('recipient-local-code')
+  const hintEl   = document.getElementById('local-code-hint')
+  const errorEl  = document.getElementById('local-code-error')
+
+  if (!wrapper || !inputEl) return
+
+  // Clear previous state
+  inputEl.value = ''
+  inputEl.classList.remove('input-error')
+  if (errorEl) { errorEl.classList.remove('show'); errorEl.textContent = '' }
+
+  const config = COUNTRY_BANK_CODE[countryCode]
+
+  // No config or explicitly null → hide
+  if (!config) {
+    wrapper.classList.remove('visible')
+    inputEl.removeAttribute('required')
+    return
+  }
+
+  // Apply config
+  if (labelEl) labelEl.textContent = config.label
+  inputEl.placeholder = config.placeholder
+  if (hintEl)  hintEl.textContent  = config.hint
+  if (errorEl) errorEl.textContent  = config.errorMsg
+
+  if (config.required) {
+    inputEl.setAttribute('required', 'required')
+  } else {
+    inputEl.removeAttribute('required')
+  }
+
+  // Show with animation
+  wrapper.classList.add('visible')
+}
+
+function validateLocalCode(countryCode, value) {
+  const config = COUNTRY_BANK_CODE[countryCode]
+  if (!config) return true                    // hidden → always valid
+  if (!config.required && !value.trim()) return true  // optional + empty → valid
+  return config.pattern.test(value.trim())
 }
 
 // ============================================================================
@@ -438,44 +666,26 @@ function renderDashboardPage() {
   document.getElementById('dashboard-page').classList.remove('hidden')
 
   const welcomeEl = document.getElementById('user-welcome')
-  if (welcomeEl) {
-    welcomeEl.textContent = `Welcome, ${appState.currentUser.name}`
-  }
+  if (welcomeEl) welcomeEl.textContent = `Welcome, ${appState.currentUser.name}`
 
   const pageTitle = document.getElementById('page-title')
-  if (pageTitle) {
-    pageTitle.textContent = 'Dashboard'
-  }
+  if (pageTitle) pageTitle.textContent = 'Dashboard'
 
   renderDashboardContent()
-
   updateNotificationBadge()
 }
 
 async function renderDashboardContent() {
   const activeSection = document.querySelector('.nav-item.active')?.dataset.section || 'dashboard'
-
   const pageTitle = document.getElementById('page-title')
-  if (pageTitle) {
-    pageTitle.textContent = activeSection.charAt(0).toUpperCase() + activeSection.slice(1)
-  }
+  if (pageTitle) pageTitle.textContent = activeSection.charAt(0).toUpperCase() + activeSection.slice(1)
 
   switch (activeSection) {
-    case 'dashboard':
-      await renderDashboardOverview()
-      break
-    case 'wallet':
-      renderWalletPage()
-      break
-    case 'transactions':
-      await renderTransactionsPage()
-      break
-    case 'messages':
-      await renderMessagesPage()
-      break
-    case 'profile':
-      renderProfilePage()
-      break
+    case 'dashboard':    await renderDashboardOverview(); break
+    case 'wallet':       renderWalletPage(); break
+    case 'transactions': await renderTransactionsPage(); break
+    case 'messages':     await renderMessagesPage(); break
+    case 'profile':      renderProfilePage(); break
   }
 }
 
@@ -485,15 +695,10 @@ async function renderDashboardOverview() {
   const transactions = await TransactionManager.getTransactions()
   const recent = transactions.slice(0, 5)
 
-  // ✅ FIX: Calculate available balance = account balance + incoming transactions
-  const availableBalance = appState.currentUser.account.balance + stats.incomingTotal
-
   const html = `
     <div class="space-y-6">
       <div class="card">
-        <div class="card-header">
-          <h2 class="card-title">Account Balance</h2>
-        </div>
+        <div class="card-header"><h2 class="card-title">Account Balance</h2></div>
         <div class="card-content">
           <div class="space-y-4">
             <div>
@@ -553,8 +758,8 @@ async function renderDashboardOverview() {
                     <div class="w-10 h-10 rounded-full flex items-center justify-center ${txn.type === 'INCOMING' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}">
                       <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         ${txn.type === 'INCOMING'
-      ? '<polyline points="23 6 13.5 15.5 8.5 10.5 1 17"/><polyline points="17 6 23 6 23 12"/>'
-      : '<polyline points="1 18 11.5 8.5 16.5 13.5 23 6"/><polyline points="7 18 1 18 1 12"/>'}
+                          ? '<polyline points="23 6 13.5 15.5 8.5 10.5 1 17"/><polyline points="17 6 23 6 23 12"/>'
+                          : '<polyline points="1 18 11.5 8.5 16.5 13.5 23 6"/><polyline points="7 18 1 18 1 12"/>'}
                       </svg>
                     </div>
                     <div class="flex-1">
@@ -567,16 +772,13 @@ async function renderDashboardOverview() {
                       ${txn.type === 'INCOMING' ? '+' : '-'}$${parseFloat(txn.amount).toFixed(2)}
                     </p>
                     <span class="text-xs px-2 py-1 rounded ${txn.status === 'PENDING' ? 'bg-orange-100 text-orange-700' :
-      (txn.status === 'SUCCESSFUL' || txn.status === 'approved') ? 'bg-green-100 text-green-700' :
-        'bg-red-100 text-red-700'
-    }">${txn.status}</span>
+                      (txn.status === 'SUCCESSFUL' || txn.status === 'approved') ? 'bg-green-100 text-green-700' :
+                      'bg-red-100 text-red-700'}">${txn.status}</span>
                   </div>
                 </div>
               `).join('')}
             </div>
-          ` : `
-            <p class="text-center text-muted-foreground py-8">No transactions yet</p>
-          `}
+          ` : `<p class="text-center text-muted-foreground py-8">No transactions yet</p>`}
         </div>
       </div>
     </div>
@@ -630,7 +832,6 @@ async function renderTransactionsPage() {
           <button class="filter-btn" data-filter="PENDING">Pending</button>
         </div>
       </div>
-
       <div class="card">
         <div class="card-content" id="transactions-list-container">
           ${renderTransactionsList(transactions, 'all')}
@@ -643,22 +844,17 @@ async function renderTransactionsPage() {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'))
       btn.classList.add('active')
-      const filter = btn.dataset.filter
-      document.getElementById('transactions-list-container').innerHTML = renderTransactionsList(transactions, filter)
+      document.getElementById('transactions-list-container').innerHTML =
+        renderTransactionsList(transactions, btn.dataset.filter)
     })
   })
 }
 
 function renderTransactionsList(transactions, filter) {
   let filtered = transactions
-
-  if (filter === 'INCOMING') {
-    filtered = transactions.filter(t => t.type === 'INCOMING')
-  } else if (filter === 'OUTGOING') {
-    filtered = transactions.filter(t => t.type === 'OUTGOING')
-  } else if (filter === 'PENDING') {
-    filtered = transactions.filter(t => t.status === 'PENDING')
-  }
+  if (filter === 'INCOMING') filtered = transactions.filter(t => t.type === 'INCOMING')
+  else if (filter === 'OUTGOING') filtered = transactions.filter(t => t.type === 'OUTGOING')
+  else if (filter === 'PENDING') filtered = transactions.filter(t => t.status === 'PENDING')
 
   if (filtered.length === 0) {
     return '<p class="text-center text-muted-foreground py-8">No transactions found</p>'
@@ -672,8 +868,8 @@ function renderTransactionsList(transactions, filter) {
             <div class="w-12 h-12 rounded-full flex items-center justify-center ${txn.type === 'INCOMING' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}">
               <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 ${txn.type === 'INCOMING'
-      ? '<polyline points="23 6 13.5 15.5 8.5 10.5 1 17"/>'
-      : '<polyline points="1 18 11.5 8.5 16.5 13.5 23 6"/>'}
+                  ? '<polyline points="23 6 13.5 15.5 8.5 10.5 1 17"/>'
+                  : '<polyline points="1 18 11.5 8.5 16.5 13.5 23 6"/>'}
               </svg>
             </div>
             <div class="flex-1">
@@ -687,9 +883,8 @@ function renderTransactionsList(transactions, filter) {
               ${txn.type === 'INCOMING' ? '+' : '-'}$${parseFloat(txn.amount).toFixed(2)}
             </p>
             <span class="text-xs px-2 py-1 rounded ${txn.status === 'PENDING' ? 'bg-orange-100 text-orange-700' :
-      (txn.status === 'SUCCESSFUL' || txn.status === 'approved') ? 'bg-green-100 text-green-700' :
-        'bg-red-100 text-red-700'
-    }">${txn.status}</span>
+              (txn.status === 'SUCCESSFUL' || txn.status === 'approved') ? 'bg-green-100 text-green-700' :
+              'bg-red-100 text-red-700'}">${txn.status}</span>
           </div>
         </div>
       `).join('')}
@@ -699,36 +894,21 @@ function renderTransactionsList(transactions, filter) {
 
 async function renderMessagesPage() {
   const container = document.getElementById('content-container')
-
   try {
-    // ✅ Fetch messages AND mark them as read
     const { data: messages, error } = await window.supabaseClient
-      .from('messages')
-      .select('*')
+      .from('messages').select('*')
       .eq('user_id', appState.currentUser.id)
       .order('created_at', { ascending: false })
 
     if (error) throw error
 
-    // ✅ Mark all messages as read when page is opened
-    const unreadIds = messages
-      .filter(msg => msg.is_read === false)
-      .map(msg => msg.id)
-
+    const unreadIds = messages.filter(msg => msg.is_read === false).map(msg => msg.id)
     if (unreadIds.length > 0) {
-      await window.supabaseClient
-        .from('messages')
-        .update({ is_read: true })
-        .in('id', unreadIds)
-      
-      console.log('✅ Marked', unreadIds.length, 'messages as read')
-      
-      // Update badge
+      await window.supabaseClient.from('messages').update({ is_read: true }).in('id', unreadIds)
       updateNotificationBadge()
     }
 
     let messagesHTML = '<div class="space-y-4">'
-
     if (!messages || messages.length === 0) {
       messagesHTML += '<div class="card"><div class="card-content"><p class="text-muted-foreground">No messages yet</p></div></div>'
     } else {
@@ -749,7 +929,6 @@ async function renderMessagesPage() {
         `
       })
     }
-
     messagesHTML += '</div>'
     container.innerHTML = messagesHTML
   } catch (error) {
@@ -759,26 +938,16 @@ async function renderMessagesPage() {
 
 async function updateNotificationBadge() {
   try {
-    // Count unread messages
-    const { data: unreadMessages, error } = await window.supabaseClient
-      .from('messages')
-      .select('id')
+    const { data: unreadMessages } = await window.supabaseClient
+      .from('messages').select('id')
       .eq('user_id', appState.currentUser.id)
       .eq('is_read', false)
 
-    if (error) throw error
-
     const unreadCount = unreadMessages?.length || 0
     const badge = document.getElementById('userNotificationBadge')
-
     if (badge) {
-      if (unreadCount > 0) {
-        badge.textContent = unreadCount > 99 ? '99+' : unreadCount
-        badge.style.display = 'flex'
-        console.log('📬 Unread messages:', unreadCount)
-      } else {
-        badge.style.display = 'none'
-      }
+      badge.textContent = unreadCount > 99 ? '99+' : unreadCount
+      badge.style.display = unreadCount > 0 ? 'flex' : 'none'
     }
   } catch (error) {
     console.error('Failed to update notification badge:', error)
@@ -817,7 +986,7 @@ function renderProfilePage() {
 }
 
 // ============================================================================
-// TRANSFER FLOW WITH OTP
+// TRANSFER FLOW
 // ============================================================================
 
 function openTransferFlow() {
@@ -827,7 +996,9 @@ function openTransferFlow() {
     bankName: '',
     recipientAccount: '',
     amount: 0,
-    description: ''
+    description: '',
+    country: '',
+    localBankCode: ''
   }
   showModal('transfer-method-modal')
 }
@@ -844,43 +1015,70 @@ function hideModal(modalId) {
 function showTransferDetailsModal() {
   document.getElementById('sender-account-number').textContent = appState.currentUser.account.account_number
   document.getElementById('sender-balance').textContent = `$${appState.currentUser.account.balance.toFixed(2)}`
+
+  // Reset country + local code field on each open
+  const countryEl = document.getElementById('recipient-country')
+  if (countryEl) countryEl.value = ''
+  updateLocalCodeField('')   // hides the field
+
   showModal('recipient-details-modal')
 }
 
 async function sendOTPAndShowModal() {
-  const recipientName = document.getElementById('recipient-name').value
-  const bankName = document.getElementById('recipient-bank').value
-  const recipientAccount = document.getElementById('recipient-account').value
-  const amount = parseFloat(document.getElementById('transfer-amount').value)
-  const description = document.getElementById('transfer-description').value
+  const recipientName    = document.getElementById('recipient-name').value.trim()
+  const bankName         = document.getElementById('recipient-bank').value.trim()
+  const recipientAccount = document.getElementById('recipient-account').value.trim()
+  const amount           = parseFloat(document.getElementById('transfer-amount').value)
+  const description      = document.getElementById('transfer-description').value.trim()
+  const country          = document.getElementById('recipient-country')?.value || ''
+  const localBankCode    = document.getElementById('recipient-local-code')?.value.trim() || ''
 
-  if (!recipientName || !bankName || !recipientAccount || !amount) {
-    alert('Please fill in all required fields')
+  // ── Basic validation ──
+  if (!recipientName || !bankName || !recipientAccount || !amount || !country) {
+    alert('Please fill in all required fields including the destination country.')
     return
   }
 
   if (amount <= 0) {
-    alert('Please enter a valid amount')
+    alert('Please enter a valid amount.')
     return
   }
 
   if (amount > appState.currentUser.account.balance) {
-    alert('Insufficient balance')
+    alert('Insufficient balance.')
     return
   }
 
-  // ✅ Just save transfer details - no OTP generation
+  // ── Local bank code validation ──
+  const codeInput = document.getElementById('recipient-local-code')
+  const errorEl   = document.getElementById('local-code-error')
+  const config    = COUNTRY_BANK_CODE[country]
+
+  if (config) {
+    const isValid = validateLocalCode(country, localBankCode)
+    if (!isValid) {
+      if (errorEl) errorEl.classList.add('show')
+      if (codeInput) { codeInput.classList.add('input-error'); codeInput.focus() }
+      return
+    } else {
+      if (errorEl) errorEl.classList.remove('show')
+      if (codeInput) codeInput.classList.remove('input-error')
+    }
+  }
+
+  // ── Save transfer state ──
   appState.currentTransfer = {
     recipientName,
     bankName,
     recipientAccount,
     amount,
-    description
+    description,
+    country,
+    localBankCode
   }
 
-  console.log('📝 Transfer details saved (OTP generation skipped)')
+  console.log('📝 Transfer details saved:', appState.currentTransfer)
 
-  // ✅ Go directly to OTP screen (dummy screen)
   hideModal('recipient-details-modal')
   showOTPModal()
 }
@@ -895,28 +1093,25 @@ function showOTPModal() {
 async function verifyOTPAndComplete() {
   const enteredOTP = document.getElementById('otp-input').value
 
-  // ✅ Just check if it's 6 digits - accept anything
   if (!enteredOTP || enteredOTP.length !== 6) {
     alert('Please enter a 6-digit code')
     return
   }
 
-  // ✅ Check if it's only numbers
   if (!/^\d{6}$/.test(enteredOTP)) {
     alert('Please enter only numbers (6 digits)')
     return
   }
 
-  console.log('✅ Code accepted:', enteredOTP, '(verification skipped)')
-
-  // ✅ Create the transaction directly
   const txResult = await TransactionManager.createTransaction(
     'OUTGOING',
     appState.currentTransfer.amount,
     appState.currentTransfer.recipientName,
     appState.currentTransfer.bankName,
     appState.currentTransfer.recipientAccount,
-    appState.currentTransfer.description
+    appState.currentTransfer.description,
+    appState.currentTransfer.country,
+    appState.currentTransfer.localBankCode
   )
 
   if (!txResult.success) {
@@ -933,6 +1128,7 @@ function showPendingScreen() {
   document.getElementById('pending-amount').textContent = `-$${appState.currentTransfer.amount.toFixed(2)}`
   showModal('pending-screen')
 }
+
 function startOTPTimer() {
   let timeLeft = 300
   const timerDisplay = document.getElementById('otp-timer')
@@ -940,66 +1136,53 @@ function startOTPTimer() {
     const mins = Math.floor(timeLeft / 60)
     const secs = timeLeft % 60
     timerDisplay.textContent = `${mins}:${secs.toString().padStart(2, '0')}`
-    if (timeLeft > 0) {
-      timeLeft--
-      setTimeout(updateTimer, 1000)
-    } else {
-      timerDisplay.textContent = 'Expired'
-    }
+    if (timeLeft > 0) { timeLeft--; setTimeout(updateTimer, 1000) }
+    else timerDisplay.textContent = 'Expired'
   }
   updateTimer()
 }
+
 // ============================================================================
 // EVENT LISTENERS
 // ============================================================================
+
 document.addEventListener('DOMContentLoaded', async () => {
   console.log('🚀 Dashboard initializing...')
+
   let attempts = 0
   while (!window.supabaseClient && attempts < 20) {
     await new Promise(resolve => setTimeout(resolve, 100))
     attempts++
   }
+
   if (!window.supabaseClient) {
-    console.error('❌ window.supabaseClient failed to initialize')
     alert('Database connection error. Please refresh the page.')
     return
   }
-  console.log('✅ window.supabaseClient ready')
-  if (appState.isDarkMode) {
-    document.documentElement.classList.add('dark')
-  }
+
+  if (appState.isDarkMode) document.documentElement.classList.add('dark')
+
   const hasSession = await AuthManager.checkSession()
-  if (hasSession) {
-    renderDashboardPage()
-  } else {
-    renderLoginPage()
-  }
+  if (hasSession) renderDashboardPage()
+  else renderLoginPage()
+
+  // ── Login form ──
   const loginForm = document.getElementById('login-form')
   if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault()
-      const email = document.getElementById('login-email').value.trim()
+      const email    = document.getElementById('login-email').value.trim()
       const password = document.getElementById('login-password').value
-
-      console.log('📧 Attempting login with:', email)
-
-      const result = await AuthManager.login(email, password)
-
-      if (result.success) {
-        console.log('✅ Login successful!')
-        renderDashboardPage()
-      } else {
-        console.error('❌ Login failed:', result.error)
-        alert('Login failed: ' + result.error)
-      }
+      const result   = await AuthManager.login(email, password)
+      if (result.success) renderDashboardPage()
+      else alert('Login failed: ' + result.error)
     })
   }
-  const logoutBtn = document.getElementById('logout-btn')
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', () => {
-      AuthManager.logout()
-    })
-  }
+
+  // ── Logout ──
+  document.getElementById('logout-btn')?.addEventListener('click', () => AuthManager.logout())
+
+  // ── Nav items ──
   document.querySelectorAll('.nav-item').forEach(item => {
     if (item.id === 'logout-btn' || item.id === 'theme-toggle-btn') return
     item.addEventListener('click', () => {
@@ -1008,54 +1191,38 @@ document.addEventListener('DOMContentLoaded', async () => {
       renderDashboardContent()
     })
   })
-  const themeToggle = document.getElementById('theme-toggle-btn')
-  if (themeToggle) {
-    themeToggle.addEventListener('click', () => {
-      appState.isDarkMode = !appState.isDarkMode
-      document.documentElement.classList.toggle('dark')
-      localStorage.setItem('theme', appState.isDarkMode ? 'dark' : 'light')
-    })
-  }
 
-  // ============================================================================
-  // 📱 MOBILE MENU FUNCTIONALITY
-  // ============================================================================
-  
-  const mobileMenuBtn = document.getElementById('mobileMenuToggle')
-  const sidebar = document.querySelector('.sidebar')
+  // ── Theme toggle ──
+  document.getElementById('theme-toggle-btn')?.addEventListener('click', () => {
+    appState.isDarkMode = !appState.isDarkMode
+    document.documentElement.classList.toggle('dark')
+    localStorage.setItem('theme', appState.isDarkMode ? 'dark' : 'light')
+  })
+
+  // ── Mobile menu ──
+  const mobileMenuBtn  = document.getElementById('mobileMenuToggle')
+  const sidebar        = document.querySelector('.sidebar')
   const sidebarOverlay = document.getElementById('sidebarOverlay')
   const sidebarCloseBtn = document.getElementById('sidebarClose')
-  
+
   if (mobileMenuBtn && sidebar && sidebarOverlay) {
-    // Open sidebar when hamburger is clicked
-    mobileMenuBtn.addEventListener('click', function() {
-      console.log('📱 Mobile menu opened')
+    mobileMenuBtn.addEventListener('click', () => {
       sidebar.classList.add('mobile-open')
       sidebarOverlay.classList.add('active')
       document.body.style.overflow = 'hidden'
     })
-    
-    // Close sidebar when overlay is clicked
-    sidebarOverlay.addEventListener('click', function() {
-      console.log('📱 Mobile menu closed (overlay)')
+    sidebarOverlay.addEventListener('click', () => {
       sidebar.classList.remove('mobile-open')
       sidebarOverlay.classList.remove('active')
       document.body.style.overflow = ''
     })
-    
-    // Close sidebar when close button is clicked
-    if (sidebarCloseBtn) {
-      sidebarCloseBtn.addEventListener('click', function() {
-        console.log('📱 Mobile menu closed (button)')
-        sidebar.classList.remove('mobile-open')
-        sidebarOverlay.classList.remove('active')
-        document.body.style.overflow = ''
-      })
-    }
-    
-    // Close sidebar when nav item is clicked (on mobile)
-    document.querySelectorAll('.nav-item').forEach(function(navItem) {
-      navItem.addEventListener('click', function() {
+    sidebarCloseBtn?.addEventListener('click', () => {
+      sidebar.classList.remove('mobile-open')
+      sidebarOverlay.classList.remove('active')
+      document.body.style.overflow = ''
+    })
+    document.querySelectorAll('.nav-item').forEach(navItem => {
+      navItem.addEventListener('click', () => {
         if (window.innerWidth <= 768) {
           setTimeout(() => {
             sidebar.classList.remove('mobile-open')
@@ -1065,25 +1232,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
       })
     })
-    
-    // Close sidebar when escape key is pressed
-    document.addEventListener('keydown', function(e) {
+    document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && sidebar.classList.contains('mobile-open')) {
         sidebar.classList.remove('mobile-open')
         sidebarOverlay.classList.remove('active')
         document.body.style.overflow = ''
       }
     })
-    
-    console.log('✅ Mobile menu initialized')
-  } else {
-    console.warn('⚠️ Mobile menu elements not found')
   }
-  
-  // ============================================================================
-  // END MOBILE MENU
-  // ============================================================================
 
+  // ── Transfer method cards ──
   document.querySelectorAll('.transfer-method-card').forEach(card => {
     card.addEventListener('click', () => {
       appState.currentTransfer.method = card.dataset.method
@@ -1091,32 +1249,50 @@ document.addEventListener('DOMContentLoaded', async () => {
       showTransferDetailsModal()
     })
   })
-  const transferNextBtn = document.getElementById('transfer-next-otp')
-  if (transferNextBtn) {
-    transferNextBtn.addEventListener('click', sendOTPAndShowModal)
-  }
-  const otpSubmitBtn = document.getElementById('otp-submit')
-  if (otpSubmitBtn) {
-    otpSubmitBtn.addEventListener('click', verifyOTPAndComplete)
-  }
-  const transferCancel1 = document.getElementById('transfer-cancel-1')
-  if (transferCancel1) {
-    transferCancel1.addEventListener('click', () => hideModal('transfer-method-modal'))
-  }
-  const transferCancel2 = document.getElementById('transfer-cancel-2')
-  if (transferCancel2) {
-    transferCancel2.addEventListener('click', () => hideModal('recipient-details-modal'))
-  }
-  const otpCancel = document.getElementById('otp-cancel')
-  if (otpCancel) {
-    otpCancel.addEventListener('click', () => hideModal('otp-modal'))
-  }
-  const pendingClose = document.getElementById('pending-close')
-  if (pendingClose) {
-    pendingClose.addEventListener('click', () => {
-      hideModal('pending-screen')
-      renderDashboardPage()
+
+  // ── Country dropdown → update local bank code field ──
+  const countrySelect = document.getElementById('recipient-country')
+  if (countrySelect) {
+    countrySelect.addEventListener('change', function () {
+      updateLocalCodeField(this.value)
     })
   }
+
+  // ── Local code input: digits-only enforcement + clear error on type ──
+  const localCodeInput = document.getElementById('recipient-local-code')
+  if (localCodeInput) {
+    localCodeInput.addEventListener('input', function () {
+      const country = document.getElementById('recipient-country')?.value || ''
+      const config  = COUNTRY_BANK_CODE[country]
+
+      // If pattern is purely numeric, strip non-digits automatically
+      if (config && /^\^\\d/.test(config.pattern.source)) {
+        this.value = this.value.replace(/[^\d\-]/g, '')
+      }
+
+      // Clear inline error as user types
+      const errorEl = document.getElementById('local-code-error')
+      if (errorEl) errorEl.classList.remove('show')
+      this.classList.remove('input-error')
+    })
+  }
+
+  // ── Transfer next (Send OTP) ──
+  document.getElementById('transfer-next-otp')?.addEventListener('click', sendOTPAndShowModal)
+
+  // ── OTP submit ──
+  document.getElementById('otp-submit')?.addEventListener('click', verifyOTPAndComplete)
+
+  // ── Cancel buttons ──
+  document.getElementById('transfer-cancel-1')?.addEventListener('click', () => hideModal('transfer-method-modal'))
+  document.getElementById('transfer-cancel-2')?.addEventListener('click', () => hideModal('recipient-details-modal'))
+  document.getElementById('otp-cancel')?.addEventListener('click', () => hideModal('otp-modal'))
+
+  // ── Pending close ──
+  document.getElementById('pending-close')?.addEventListener('click', () => {
+    hideModal('pending-screen')
+    renderDashboardPage()
+  })
+
   console.log('✅ User Dashboard ready')
 })
