@@ -846,3 +846,12 @@ textarea.input {
 .nav-item {
   position: relative;
 }
+/* Routing number error state */
+.input-error {
+  border-color: var(--destructive) !important;
+  outline-color: var(--destructive) !important;
+}
+
+.routing-number-wrapper {
+  transition: all 0.3s ease;
+}
