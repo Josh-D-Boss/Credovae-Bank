@@ -10,6 +10,32 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ── Routing / Local Bank Code field ── */
+        .local-code-wrapper {
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.3s ease;
+            max-height: 0;
+            opacity: 0;
+        }
+        .local-code-wrapper.visible {
+            max-height: 120px;
+            opacity: 1;
+        }
+        .input-error {
+            border-color: var(--destructive) !important;
+            outline-color: var(--destructive) !important;
+        }
+        .field-error-msg {
+            display: none;
+            color: var(--destructive);
+            font-size: 0.72rem;
+            margin-top: 0.2rem;
+        }
+        .field-error-msg.show {
+            display: block;
+        }
+    </style>
 </head>
 
 <body>
@@ -75,22 +101,22 @@
                 </button>
         
                 <div class="p-6 space-y-2 border-b border-sidebar-border">
-    <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: nowrap;">
-        <img src="../assets/logo.svg" alt="Credovae Bank Logo" style="width: 32px; 
-                        height: 32px; 
-                        object-fit: contain; 
-                        flex-shrink: 0;">
-        <div style="min-width: 0;">
-            <h2 style="font-size: 1rem; 
-                           font-weight: 700; 
-                           white-space: nowrap; 
-                           color: var(--sidebar-foreground);">Credovae Bank</h2>
-            <p style="font-size: 0.7rem; 
-                          color: var(--muted-foreground); 
-                          white-space: nowrap;">Private & Corporate Banking</p>
-        </div>
-    </div>
-    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: nowrap;">
+                        <img src="../assets/logo.svg" alt="Credovae Bank Logo" style="width: 32px; 
+                                        height: 32px; 
+                                        object-fit: contain; 
+                                        flex-shrink: 0;">
+                        <div style="min-width: 0;">
+                            <h2 style="font-size: 1rem; 
+                                           font-weight: 700; 
+                                           white-space: nowrap; 
+                                           color: var(--sidebar-foreground);">Credovae Bank</h2>
+                            <p style="font-size: 0.7rem; 
+                                          color: var(--muted-foreground); 
+                                          white-space: nowrap;">Private & Corporate Banking</p>
+                        </div>
+                    </div>
+                </div>
 
                 <nav class="px-4 space-y-2 py-6">
                     <button class="nav-item active" data-section="dashboard">
@@ -117,13 +143,13 @@
                         </svg>
                         <span>Transactions</span>
                     </button>
-<button class="nav-item" data-section="messages">
-    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-    </svg>
-    <span>Alerts</span>
-    <span class="notification-badge" id="userNotificationBadge" style="display: none;"></span>
-</button>
+                    <button class="nav-item" data-section="messages">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                        </svg>
+                        <span>Alerts</span>
+                        <span class="notification-badge" id="userNotificationBadge" style="display: none;"></span>
+                    </button>
                     <button class="nav-item" data-section="profile">
                         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
@@ -217,6 +243,8 @@
                     <p class="modal-description">Enter recipient information and amount</p>
                 </div>
                 <form id="recipient-form" class="modal-body space-y-6">
+
+                    <!-- YOUR ACCOUNT -->
                     <div class="space-y-4">
                         <h3 class="font-semibold">Your Account</h3>
                         <div class="grid grid-cols-2 gap-4 text-sm">
@@ -233,27 +261,103 @@
 
                     <hr class="border-border" />
 
+                    <!-- RECIPIENT INFORMATION -->
                     <div class="space-y-4">
                         <h3 class="font-semibold">Recipient Information</h3>
                         <div class="space-y-3">
+
                             <div class="space-y-2">
                                 <label class="label">Recipient Name *</label>
                                 <input type="text" id="recipient-name" class="input" placeholder="John Doe" required />
                             </div>
+
                             <div class="space-y-2">
                                 <label class="label">Bank Name *</label>
                                 <input type="text" id="recipient-bank" class="input" placeholder="ABC Bank" required />
                             </div>
+
+                            <!-- DESTINATION COUNTRY -->
+                            <div class="space-y-2">
+                                <label class="label">Destination Country *</label>
+                                <select id="recipient-country" class="input" required>
+                                    <option value="">— Select a country —</option>
+                                    <optgroup label="Americas">
+                                        <option value="US">🇺🇸 United States (ABA Routing)</option>
+                                        <option value="CA">🇨🇦 Canada (Transit Number)</option>
+                                        <option value="MX">🇲🇽 Mexico (CLABE)</option>
+                                        <option value="BR">🇧🇷 Brazil (ISPB)</option>
+                                    </optgroup>
+                                    <optgroup label="Europe">
+                                        <option value="GB">🇬🇧 United Kingdom (Sort Code)</option>
+                                        <option value="DE">🇩🇪 Germany (IBAN / BIC)</option>
+                                        <option value="FR">🇫🇷 France (IBAN / BIC)</option>
+                                        <option value="ES">🇪🇸 Spain (IBAN / BIC)</option>
+                                        <option value="IT">🇮🇹 Italy (IBAN / BIC)</option>
+                                        <option value="NL">🇳🇱 Netherlands (IBAN / BIC)</option>
+                                        <option value="CH">🇨🇭 Switzerland (IBAN / BIC)</option>
+                                        <option value="SE">🇸🇪 Sweden (Bankgiro / IBAN)</option>
+                                        <option value="NO">🇳🇴 Norway (IBAN)</option>
+                                        <option value="DK">🇩🇰 Denmark (IBAN)</option>
+                                        <option value="PL">🇵🇱 Poland (IBAN)</option>
+                                        <option value="PT">🇵🇹 Portugal (IBAN)</option>
+                                    </optgroup>
+                                    <optgroup label="Asia-Pacific">
+                                        <option value="AU">🇦🇺 Australia (BSB Number)</option>
+                                        <option value="NZ">🇳🇿 New Zealand (Bank Branch)</option>
+                                        <option value="JP">🇯🇵 Japan (Zengin Code)</option>
+                                        <option value="CN">🇨🇳 China (CNAPS)</option>
+                                        <option value="IN">🇮🇳 India (IFSC Code)</option>
+                                        <option value="SG">🇸🇬 Singapore (Bank Code)</option>
+                                        <option value="HK">🇭🇰 Hong Kong (Bank Code)</option>
+                                        <option value="KR">🇰🇷 South Korea (Bank Code)</option>
+                                        <option value="MY">🇲🇾 Malaysia (IBG Code)</option>
+                                        <option value="PH">🇵🇭 Philippines (Bank Code)</option>
+                                        <option value="TH">🇹🇭 Thailand (BAHTNET)</option>
+                                        <option value="ID">🇮🇩 Indonesia (Bank Code)</option>
+                                    </optgroup>
+                                    <optgroup label="Middle East & Africa">
+                                        <option value="AE">🇦🇪 UAE (IBAN)</option>
+                                        <option value="SA">🇸🇦 Saudi Arabia (IBAN)</option>
+                                        <option value="NG">🇳🇬 Nigeria (Sort Code)</option>
+                                        <option value="ZA">🇿🇦 South Africa (Branch Code)</option>
+                                        <option value="KE">🇰🇪 Kenya (Bank Code)</option>
+                                        <option value="GH">🇬🇭 Ghana (Bank Code)</option>
+                                        <option value="EG">🇪🇬 Egypt (IBAN)</option>
+                                    </optgroup>
+                                    <optgroup label="Other">
+                                        <option value="OTHER">🌍 Other / SWIFT Only</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+
+                            <!-- ACCOUNT NUMBER -->
                             <div class="space-y-2">
                                 <label class="label">Account Number *</label>
-                                <input type="text" id="recipient-account" class="input" placeholder="1234567890"
-                                    required />
+                                <input type="text" id="recipient-account" class="input" placeholder="1234567890" required />
                             </div>
+
+                            <!-- LOCAL BANK CODE — shown conditionally, label changes per country -->
+                            <div class="local-code-wrapper" id="local-code-wrapper">
+                                <div class="space-y-2" style="padding-top: 0.1rem;">
+                                    <label class="label" id="local-code-label">Routing Number *</label>
+                                    <input
+                                        type="text"
+                                        id="recipient-local-code"
+                                        class="input"
+                                        placeholder=""
+                                        autocomplete="off"
+                                    />
+                                    <p class="field-error-msg" id="local-code-error">Please enter a valid code.</p>
+                                    <p class="text-xs text-muted-foreground" id="local-code-hint" style="margin-top:0.2rem;"></p>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
 
                     <hr class="border-border" />
 
+                    <!-- TRANSFER AMOUNT -->
                     <div class="space-y-4">
                         <h3 class="font-semibold">Transfer Amount</h3>
                         <div class="space-y-3">
@@ -269,6 +373,7 @@
                             </div>
                         </div>
                     </div>
+
                 </form>
                 <div class="modal-footer">
                     <button class="btn btn-outline" id="transfer-cancel-2">Cancel</button>
@@ -277,7 +382,7 @@
             </div>
         </div>
 
-        <!-- Step 3: OTP Verification (CRITICAL - BLOCKS TRANSACTION) -->
+        <!-- Step 3: OTP Verification -->
         <div id="otp-modal" class="modal hidden">
             <div class="modal-overlay"></div>
             <div class="modal-content max-w-md">
@@ -310,8 +415,7 @@
                             <path
                                 d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
                         </svg>
-                        <p class="text-xs">⚠️ Check your email for the OTP code. Transaction cannot proceed without
-                            valid OTP.</p>
+                        <p class="text-xs">⚠️ Check your email for the OTP code. Transaction cannot proceed without valid OTP.</p>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -362,6 +466,7 @@
         </div>
 
     </div>
+
     <!-- Supabase SDK - MUST BE FIRST -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -371,42 +476,22 @@
     <!-- Dashboard script - MUST BE LAST -->
     <script src="js/dashboard.js"></script>
 
-        <!-- UPDATE PAGE TITLE - MUST BE LAST -->
+    <!-- UPDATE PAGE TITLE -->
     <script>
-    // Update page title after everything loads
     window.addEventListener('load', async function() {
-        console.log('🔧 Updating page title...');
-        
-        // Wait for dashboard to initialize
         await new Promise(resolve => setTimeout(resolve, 1000));
-        
         try {
-            // Check if we have a session
-            const { data: { session }, error } = await window.supabaseClient.auth.getSession();
-            
-            if (!session) {
-                console.log('ℹ️ No session - keeping default title');
-                return;
-            }
-            
-            // Get user profile from database
+            const { data: { session } } = await window.supabaseClient.auth.getSession();
+            if (!session) return;
             const { data: profile } = await window.supabaseClient
                 .from('users')
                 .select('name')
                 .eq('id', session.user.id)
                 .single();
-            
-            // Get name from profile or session
-            const name = profile?.name || 
-                        session.user.user_metadata?.full_name || 
-                        session.user.email.split('@')[0];
-            
-            // Update title
+            const name = profile?.name || session.user.user_metadata?.full_name || session.user.email.split('@')[0];
             document.title = `${name}'s Dashboard - Credovae Bank`;
-            console.log('✅ Page title updated to:', document.title);
-            
         } catch (e) {
-            console.error('❌ Failed to update title:', e);
+            console.error('Failed to update title:', e);
         }
     });
     </script>
