@@ -1526,7 +1526,7 @@ async function rejectTransaction() {
     const { data: txData, error: txError } = await window.supabaseClient
       .from('transactions')
       .update({
-        status: 'REJECTED',
+        status: 'FAILED',
         updated_at: new Date().toISOString()
       })
       .eq('id', txId)
